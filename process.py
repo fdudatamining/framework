@@ -24,3 +24,21 @@ def outlier_detector(data,
   distance = distance(mean_value_line)
   error = distance.pairwise(mean_value_line.predict(relevant_data), relevant_data)
   return data[(error-error.mean())/error.std() > threshold]
+
+
+def iterative_kmeans(X, z=0.01, n_clusters=8, **kwargs):
+  '''
+  Process X with KMeans yielding rows that appear in lower than m-z
+   clusters, and recursively processing on higher than m+z clusters.
+  '''
+  while len(X) != 0:
+    km = cluster.KMeans(n_clusters=min(len(X), n_clusters), **kwargs)
+    x = km.fit_predict(X)
+    c = pd.value_counts(x).sort_values()
+    thresh = c.mean() - z*c.std()
+    ind = c[c < thresh].index
+    if len(ind) != 0:
+        yield(X[x==i] for i in ind)
+    else:
+        break
+    X = X[np.in1d(x, c[c >= thresh].index)]
