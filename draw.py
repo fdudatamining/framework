@@ -19,6 +19,7 @@ import os
 import re
 import itertools as it
 import numpy as np
+import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib import colors
 from mpl_toolkits.basemap import Basemap
@@ -27,11 +28,16 @@ from mpl_toolkits.basemap import Basemap
 draw_kinds = [k[1:] for k in locals().keys()
               if re.match(r'^_[^_]', k)]
 
+# inline mode supported
+if 'inline' in matplotlib.get_backend():
+    import plotly.offline as py
+    py.init_notebook_mode(connected=True)
+
 def cmap(seed):
   np.random.seed(seed)
   return colors.ListedColormap(np.random.rand(256, 3))
 
-def draw(ax=None, kind=None, save=None, show=False, **kwargs):
+def draw(ax=None, kind=None, save=None, show=False, iplot=False, **kwargs):
   ''' Inline MATPLOTLIB functionality
   @parameters
    ax: plt axis (default None)
@@ -57,7 +63,9 @@ def draw(ax=None, kind=None, save=None, show=False, **kwargs):
     __save(ax, save, **kwargs)
   if show:
     __show(ax)
-  if save or show:
+  if iplot:
+    __iplot(ax)
+  if iplot or save or show:
     plt.clf()
   return ax
 
@@ -99,14 +107,14 @@ def __subplot(grid=None, subplot=111,
       ax.semilogx()
     elif log=='y' or log=='semilogy':
       ax.semilogy()
-  # if scientific is not None:
-  #   if scientific=='x':
-  #     ax.get_yaxis().get_major_formatter().set_scientific(False)
-  #   elif scientific=='y':
-  #     ax.xaxis.get_major_formatter().set_scientific(False)
-  #   else:
-  #     ax.yaxis.get_major_formatter().set_scientific(scientific)
-  #     ax.xaxis.get_major_formatter().set_scientific(scientific)
+  elif scientific is not None:
+    if scientific=='x':
+      ax.get_yaxis().get_major_formatter().set_scientific(False)
+    elif scientific=='y':
+      ax.xaxis.get_major_formatter().set_scientific(False)
+    else:
+      ax.yaxis.get_major_formatter().set_scientific(scientific)
+      ax.xaxis.get_major_formatter().set_scientific(scientific)
   return ax
 
 
@@ -162,8 +170,11 @@ def __save(ax, fname, **kwargs):
 def __show(ax, **kwargs):
   plt.show()
 
-# Plot kinds
+def __iplot(ax, **kwargs):
+  py.iplot_mpl(ax.get_figure())
 
+
+# Plot kinds
 
 def _plot(ax, x=None, y=None, **kwargs):
   if x is None:
