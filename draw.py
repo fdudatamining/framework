@@ -21,7 +21,6 @@ import itertools as it
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from mpl_toolkits.basemap import Basemap
 
 # enumerate draw kinds
 draw_kinds = [k[1:] for k in locals().keys()
@@ -193,25 +192,69 @@ def _scatter(ax, x=None, y=None, **kwargs):
 
 
 def _errorbar(ax, x=None, y=None, **kwargs):
-    if x is None:
-      x = range(len(y))
-    ax.errorbar(x, y,
-      **__nargs(['label', 'xerr', 'yerr', 'fmt', 'ecolor',
-                 'elinewidth', 'capsize', 'barsabove',
-                 'lolims', 'uplims', 'xlolims', 'xuplims',
-                 'errorevery', 'capthick',],
-                **kwargs))
+  if x is None:
+    x = range(len(y))
+  ax.errorbar(x, y,
+    **__nargs(['label', 'xerr', 'yerr', 'fmt', 'ecolor',
+               'elinewidth', 'capsize', 'barsabove',
+               'lolims', 'uplims', 'xlolims', 'xuplims',
+               'errorevery', 'capthick', 'agg_filter',
+               'alpha', 'animated', 'antialiased', 'axes',
+               'clip_box', 'clip_on', 'clip_path', 'color',
+               'contains', 'dash_capstyle', 'dash_joinstyle',
+               'dashes', 'drawstyle', 'figure', 'fillstyle',
+               'gid', 'label', 'linestyle', 'linewidth',
+               'marker', 'markeredgecolor', 'markeredgewidth',
+               'markerfacecolor', 'markerfacecoloralt',
+               'markersize', 'markevery', 'path_effects',
+               'picker', 'pickradius', 'rasterized',
+               'sketch_params', 'snap', 'solid_capstyle',
+               'solid_joinstyle', 'transform', 'url',
+               'visible', 'xdata', 'ydata', 'zorder',],
+              **kwargs))
+
 
 def _boxplot(ax, x=None, **kwargs):
-    ax.boxplot(x,
-      **__nargs(['notch', 'sym', 'vert', 'whis',
-                 'positions', 'widths', 'patch_artist',
-                 'bootstrap', 'usermedians', 'conf_intervals',
-                 'meanline', 'showmeans', 'showcaps',
-                 'showbox', 'showfliers', 'boxprops', 'labels',
-                 'flierprops', 'medianprops', 'meanprops',
-                 'capprops', 'whiskerprops', 'manage_xticks',],
-                **kwargs))
+  ax.boxplot(x,
+    **__nargs(['notch', 'sym', 'vert', 'whis',
+               'positions', 'widths', 'patch_artist',
+               'bootstrap', 'usermedians', 'conf_intervals',
+               'meanline', 'showmeans', 'showcaps',
+               'showbox', 'showfliers', 'boxprops', 'labels',
+               'flierprops', 'medianprops', 'meanprops',
+               'capprops', 'whiskerprops', 'manage_xticks',],
+              **kwargs))
+
+def _bar(ax, left=None, height=None, **kwargs):
+  ax.bar(left, height,
+    **__nargs(['width', 'bottom', 'color', 'orientation', 'log',
+               'edgecolor', 'linewidth', 'tick_label', 'xerr',
+               'yerr', 'ecolor', 'capsize', 'error_kw', 'align',
+               'agg_filter', 'alpha', 'animated', 'antialiased',
+               'axes', 'capstyle', 'clip_box', 'clip_on',
+               'clip_path', 'color', 'contains', 'edgecolor',
+               'facecolor', 'figure', 'fill', 'gid', 'hatch',
+               'joinstyle', 'label', 'linestyle', 'linewidth',
+               'path_effects', 'picker', 'rasterized',
+               'sketch_params', 'snap', 'transform', 'url',
+               'visible', 'zorder',],
+               **kwargs))
+
+def _barh(ax, bottom=None, width=None, **kwargs):
+  ax.bar(bottom, width,
+    **__nargs(['height', 'left', 'color', 'edgecolor',
+               'linewidth', 'tick_label', 'xerr', 'yerr',
+               'ecolor', 'capsize', 'error_kw', 'align',
+               'log', 'agg_filter', 'alpha', 'animated',
+               'antialiased', 'axes', 'capstyle', 'clip_box',
+               'clip_on', 'clip_path', 'color', 'contains',
+               'edgecolor', 'facecolor', 'figure', 'fill',
+               'gid', 'hatch', 'joinstyle', 'label', 'linestyle',
+               'linewidth', 'path_effects', 'picker', 'rasterized',
+               'sketch_params', 'snap', 'transform', 'url',
+               'visible', 'zorder', ], **kwargs))
+
+
 
 def _contourf(ax, x=None, y=None, z=None, **kwargs):
   ax.contourf(x, y, z,
@@ -221,10 +264,13 @@ def _contourf(ax, x=None, y=None, z=None, **kwargs):
 def _hist(ax, x=None, **kwargs):
   ax.hist(x,
     **__nargs(['bins', 'range', 'normed', 'weights',
-               'cumalative', 'histtype', 'align',
+               'cumalative', 'bottom', 'histtype', 'align',
                'orientation', 'rwidth', 'log',
                'color', 'label', 'stacked', 'hold',],
               **kwargs))
+
+
+# Non-trivial drawing routines
 
 def _svc(ax, clf=None, x=None, y=None, h=0.02, alpha=0.8, cmap=plt.cm.Paired, **kwargs):
   ''' http://scikit-learn.org/stable/auto_examples/svm/plot_iris.html '''
@@ -244,6 +290,7 @@ def _linear_regression(ax, x=None, y=None, c=None, **kwargs):
   p = np.poly1d(z)
   _scatter(ax, x=x, y=y, c=c, **kwargs)
   _plot(ax, x=x, y=p(x), c=c, **kwargs)
+  return p
 
 def _qq(ax, x=None, **kwargs):
   from scipy.stats import probplot
@@ -252,29 +299,40 @@ def _qq(ax, x=None, **kwargs):
 def _pca_variance(ax, pca=None, **kwargs):
   _plot(y=pca.explained_variance_, **kwargs)
 
-# Basemap
+
+# Other drawing routines outside of draw
+
+def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, show=True, fillna=np.NaN, **kwargs):
+  ''' 3d binning view that lays out x and y binned in 2 dimensions and then the count in the bins
+  as a coloro in the z direction or a custom z field and custom `aggfunc` for that field. '''
+  if z is None:
+    # Yes it's hacky, I know. This is required when a count is expected and z isn't
+    #  necessary.
+    aggfunc = 'count'
+    z = '_'
+    df = df[[x, y]]
+    df[z] = 1
+  elif aggfunc is None:
+    aggfunc = 'mean'
+  gx, gy = [pd.cut(df[g], n) for g in [x,y]]
+  # right edges of bins for ticks
+  xticks = gx.apply(lambda s: float(s.split()[1][1:-1]))
+  yticks = gy.apply(lambda s: float(s.split()[1][1:-1]))
+  g = df.groupby([gx, gy])
+  a = g[z].agg(aggfunc).reset_index() \
+          .pivot_table(index=x, columns=y, values=z) \
+          .fillna(fillna)
+  plt.imshow(a.values,
+             origin='low',
+             aspect='auto',
+             interpolation='none',
+             extent=(min(xticks), max(xticks), min(yticks), max(yticks)),
+             **kwargs)
+  plt.xlabel(x)
+  plt.ylabel(y)
+  plt.colorbar(shrink=.92)
+  if show:
+    plt.show()
+  return a
 
 
-def __basemap(shapefile=None, countries=True, coastlines=True, states=True, **kwargs):
-  bm = Basemap(ax=ax,
-               **__nargs(['projection', 'area_thresh',
-                          'llcrnrlon', 'llcrnrlat',
-                          'urcrnrlon', 'urcrnrlat',
-                          'lon_0', 'lat_0',
-                          'lat_1', 'lat_2',
-                          'width', 'height',], **kwargs))
-  if shapefile:
-    bm.readshapefile(shapefile, shapefile)
-  else:
-    if countries:
-      bm.drawcountries()
-    if coastlines:
-      bm.drawcoastlines()
-    if states:
-      bm.drawstates()
-  return bm
-
-
-def _basemap_scatter(ax, bm=None, x=None, y=None, **kwargs):
-  bm = bm or __basemap(**kwargs)
-  bm.scatter(x, y, ax=ax, **__nargs(['marker'], **kwargs))
