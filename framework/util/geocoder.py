@@ -1,12 +1,11 @@
 # Looking up long/lat of zip codes (not required if basemap has that info)
 import os
-import json
+import pickle
 from geopy.geocoders.base import Geocoder
 from geopy.geocoders import *
 from itertools import cycle
 
 # TODO: better error handling (probably)
-
 
 class CachingLeechGeocoder(Geocoder):
     ''' I designed this to leach off of the available Geocoder providers and cache all results,
@@ -15,20 +14,26 @@ class CachingLeechGeocoder(Geocoder):
     coders = [ArcGIS, DataBC, GoogleV3, GeocoderDotUS, OpenMapQuest,
               NaviData, Nominatim, GeocodeFarm, Yandex, Photon]
     cached = {}
-    cache = 'leech_geocoder.json'
+    cache = 'leech_geocoder.pickle'
     current = cycle(coders)
 
     def __init__(self, **kwargs):
         Geocoder.__init__(self, **kwargs)
-        self.cached = json.load(open(self.cache, 'r')) if os.path.exists(self.cache) else {}
+        self.cached = pickle.load(open(self.cache, 'rb')) if os.path.exists(self.cache) else {}
 
     def geocode(self, query, **kwargs):
-        result = self.cached.get(query)
-        if not result:
-            result = next(self.current)().geocode(query, **kwargs)
-            self.cached[query] = result
+        result = self.cached.get(query, None)
+        while result is None and self.coders != []:
+            try:
+                coder = next(self.current)
+                result = coder().geocode(query, **kwargs)
+                self.cached[query] = result
+            except Exception as e:
+                self.coders = [c for c in self.coders if c is not coder]
         return result
 
+    def flush(self):
+        pickle.dump(self.cached, open(self.cache, 'wb'))
+
     def __del__(self):
-        json.dump(self.cached, open(self.cache, 'w'))
-        Geocoder.__del__(self)
+        self.flush()

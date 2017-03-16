@@ -1,11 +1,13 @@
 import os
 import json
-import pymysql
 import pandas as pd
 import numpy as np
 from sklearn import preprocessing
+from sqlalchemy import create_engine
 
-sql = pymysql.connect(**json.load(open(os.path.expanduser('~/.sql.conf'), 'r')))
+sql = lambda db: create_engine(
+  json.load(
+    open(os.path.expanduser('~/.sql.conf'), 'r'))['uri']+db)
 
 def converter(x):
     '''

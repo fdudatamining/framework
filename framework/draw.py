@@ -18,6 +18,7 @@ Usage:
 import os
 import re
 import itertools as it
+import pandas as pd
 import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
@@ -63,7 +64,7 @@ def draw(ax=None, kind=None, save=None, show=False, iplot=False, **kwargs):
   if show:
     __show(ax)
   if iplot:
-    __iplot(ax)
+    __iplot(ax, **kwargs)
   if iplot or save or show:
     plt.clf()
   return ax
@@ -86,7 +87,7 @@ def __subplot(grid=None, subplot=111,
               scientific=False, **kwargs):
   ax = plt.subplot(subplot)
   if grid:
-    ax.grid(True, which=grid)
+    ax.grid(True, which=grid, **__nargs(['linestyle'], **kwargs))
   if title:
     ax.set_title(title)
   if xlabel:
@@ -106,14 +107,14 @@ def __subplot(grid=None, subplot=111,
       ax.semilogx()
     elif log=='y' or log=='semilogy':
       ax.semilogy()
-  elif scientific is not None:
-    if scientific=='x':
-      ax.get_yaxis().get_major_formatter().set_scientific(False)
-    elif scientific=='y':
-      ax.xaxis.get_major_formatter().set_scientific(False)
-    else:
-      ax.yaxis.get_major_formatter().set_scientific(scientific)
-      ax.xaxis.get_major_formatter().set_scientific(scientific)
+  # if scientific is not None:
+  #   if scientific=='x':
+  #     ax.get_yaxis().get_major_formatter().set_scientific(False)
+  #   elif scientific=='y':
+  #     ax.xaxis.get_major_formatter().set_scientific(False)
+  #   else:
+  #     ax.yaxis.get_major_formatter().set_scientific(scientific)
+  #     ax.xaxis.get_major_formatter().set_scientific(scientific)
   return ax
 
 
@@ -170,7 +171,9 @@ def __show(ax, **kwargs):
   plt.show()
 
 def __iplot(ax, **kwargs):
-  py.iplot_mpl(ax.get_figure())
+  py.iplot_mpl(ax.get_figure(),
+    **__nargs(['scale',],
+              **kwargs))
 
 
 # Plot kinds
@@ -236,7 +239,9 @@ def _boxplot(ax, x=None, **kwargs):
                'capprops', 'whiskerprops', 'manage_xticks',],
               **kwargs))
 
-def _bar(ax, left=None, height=None, **kwargs):
+def _bar(ax, left=None, height=None, log=None, **kwargs):
+  if log is not None:
+    log = True
   ax.bar(left, height,
     **__nargs(['width', 'bottom', 'color', 'orientation', 'log',
                'edgecolor', 'linewidth', 'tick_label', 'xerr',
@@ -249,7 +254,7 @@ def _bar(ax, left=None, height=None, **kwargs):
                'path_effects', 'picker', 'rasterized',
                'sketch_params', 'snap', 'transform', 'url',
                'visible', 'zorder',],
-               **kwargs))
+               **kwargs, log=log))
 
 def _barh(ax, bottom=None, width=None, **kwargs):
   ax.bar(bottom, width,
@@ -313,9 +318,13 @@ def _pca_variance(ax, pca=None, **kwargs):
 
 # Other drawing routines outside of draw
 
-def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, show=True, fillna=np.NaN, **kwargs):
+def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, fillna=np.NaN, clabel='Count', **kwargs):
   ''' 3d binning view that lays out x and y binned in 2 dimensions and then the count in the bins
-  as a coloro in the z direction or a custom z field and custom `aggfunc` for that field. '''
+  as a color in the z direction or a custom z field and custom `aggfunc` for that field. '''
+  if type(n) == int:
+    # Support different x and y binning, if an iterable
+    #  isn't passed, we turn it into an iterable.
+    n = [n, n]
   if z is None:
     # Yes it's hacky, I know. This is required when a count is expected and z isn't
     #  necessary.
@@ -325,25 +334,28 @@ def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, show=Tru
     df[z] = 1
   elif aggfunc is None:
     aggfunc = 'mean'
-  gx, gy = [pd.cut(df[g], n) for g in [x,y]]
-  # right edges of bins for ticks
-  xticks = gx.apply(lambda s: float(s.split()[1][1:-1]))
-  yticks = gy.apply(lambda s: float(s.split()[1][1:-1]))
+  gx, gy = [pd.cut(df[g], c) for g, c in zip([x,y], n)]
+  # right edges of bins for ticks,
+  # note that pandas uses strings to represent the cuts so we need to parse those
   g = df.groupby([gx, gy])
   a = g[z].agg(aggfunc).reset_index() \
-          .pivot_table(index=x, columns=y, values=z) \
+          .pivot_table(index=y, columns=x, values=z) \
           .fillna(fillna)
   plt.imshow(a.values,
-             origin='low',
-             aspect='auto',
+             origin='low', aspect='auto',
              interpolation='none',
-             extent=(min(xticks), max(xticks), min(yticks), max(yticks)),
-             **kwargs)
-  plt.xlabel(x)
-  plt.ylabel(y)
-  plt.colorbar(shrink=.92)
-  if show:
-    plt.show()
+             extent=(
+                 float(a.columns[0].split(',')[0][1:]),
+                 float(a.columns[-1].split(',')[1][1:-1]),
+                 float(a.index[0].split(',')[0][1:]),
+                 float(a.index[-1].split(',')[1][1:-1])),
+             **__nargs(['origin', 'aspect', 'interpolation', 'extent'],
+              **kwargs))
+  cbar = plt.colorbar(shrink=.92)
+  if clabel:
+    cbar.set_label(clabel,
+      **__nargs(['labelpad', 'y', 'rotation'],
+        labelpad=-40, y=1.1, rotation=0, **kwargs))
+  draw(**kwargs)
   return a
-
 
