@@ -282,7 +282,8 @@ def _hist(ax, x=None, **kwargs):
     **__nargs(['bins', 'range', 'normed', 'weights',
                'cumalative', 'bottom', 'histtype', 'align',
                'orientation', 'rwidth', 'log',
-               'color', 'label', 'stacked', 'hold',],
+               'color', 'label', 'stacked', 'hold',
+               'linewidth', 'edgecolor',],
               **kwargs))
 
 
@@ -328,7 +329,8 @@ def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, fillna=n
   if z is None:
     # Yes it's hacky, I know. This is required when a count is expected and z isn't
     #  necessary.
-    aggfunc = 'count'
+    if aggfunc is None:
+      aggfunc = 'count'
     z = '_'
     df = df[[x, y]]
     df[z] = 1
