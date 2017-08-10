@@ -1,3 +1,8 @@
+# Fairleigh Dickinson University Datamining Framework
+
+[![Coverage Status](https://coveralls.io/repos/github/fdudatamining/framework/badge.svg?branch=setuptools)](https://coveralls.io/github/fdudatamining/framework?branch=setuptools)
+[![Build Status](https://travis-ci.org/fdudatamining/framework.svg?branch=setuptools)](https://travis-ci.org/fdudatamining/framework)
+
 ## Framework Outline
 
 This outline and framework is very much a draft, please don't expect to framework to work too much magic before it is complete. In particular, the model and process modules are currently in development, data has a few known issues with some conversions, but draw should work quite well.
@@ -41,25 +46,6 @@ for n in range(10):
   draw(kind='plot', x=x, y=[n*t for t in x],
        label='$%dt$' % (n))
 draw(title='$nt$', xlabel='t', ylabel='y', legend='right', show=True, save='%d.png')
-```
-
-### framework.model
-
-Contains model wrappers for the various sklearn models leveraging the framework stack. This includes techniques for finding best fit, model-specific visualizations, and high level data searches. In the future these will be extended to provide seemless sampling and mini-batch capabilities for quick preliminary results on large operations.
-
-Example:
-
-```python
-from framework import *
-from framework.draw import *
-d = data.PandasData(pd.read_csv('data.csv'))
-t = data.PandasData(pd.read_csv('target.csv'))
-m = model.SklearnModel(SVC(kernel='linear'))
-m.fit(d, t)
-cm = cmap(2016)
-draw(kind='scatter', x=d, y=t, cmap=cm)
-draw(kind='decision_boundary', model=m, cmap=cm)
-draw(show=True)
 ```
 
 ### framework.process

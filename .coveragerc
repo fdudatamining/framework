@@ -1,0 +1,5 @@
+[report]
+omit =
+    */python3.6/*
+    */python3.6-dev/*
+    */site-packages/nose/*

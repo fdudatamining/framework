@@ -1,120 +1,112 @@
+import numpy as np
+import pandas as pd
 from unittest import TestCase
 from framework import data
 
-class TestDraw(TestCase):
+class TestData(TestCase):
+  def assertNumpyEqual(self, a : np.array, b : np.array):
+    print('%s == %s ?' % (a, b))
+    self.assertEqual(a.dtype, b.dtype,
+                     '%s != %s' % (a.dtype, b.dtype))
+    self.assertEqual(a.shape, b.shape,
+                     '%s != %s' % (a.shape, b.shape))
+    try:
+      self.assertTrue(
+        np.equal(a, b).all(),
+        '%s != %s' % (a, b))
+    except:
+      self.assertEqual(a.tolist(), b.tolist(), '%s != %s' % (a, b))
+
   def test_converter(self):
-    self.assertEqual(data.converter('hello'), 'hello')
-    self.assertEqual(data.converter('1'), 1)
-    self.assertEqual(data.converter('-3'), -3)
-    self.assertEqual(data.converter('1.0'), 1.0)
-    self.assertEqual(data.converter('.06'), 0.06)
-    self.assertEqual(data.converter('1e5'), 1e5)
-    self.assertEqual(data.converter('true'), True)
-    self.assertEqual(data.converter('false'), False)
-    self.assertEqual(data.converter('1+3'), '1+3')
-    self.assertEqual(data.converter('[1, 6.0]'), [1, 6.0])
+    D = [
+      ('hello', 'hello',),
+      ('1', 1,),
+      ('-3', -3,),
+      ('1.0', 1.0,),
+      ('true', True,),
+      ('false', False,),
+      ('1+3', '1+3',),
+      ('[1, 6.0]', [1, 6.0],),
+    ]
+    for a, b in D:
+      self.assertEqual(data.converter(a), b)
+      self.assertEqual(data.inverse_converter(b), a)
 
   def test_vectorize_encoder(self):
     class TestEncoder(data.VectorizeEncoder):
+      def __init__(self):
+        super().__init__()
+        self._fitted = set()
       def _fit(self, x):
-        self._fitted = x
+        self._fitted.add(x)
       def _transform(self, x):
-        return str(x) if x in self._fitted else x
+        return x if x in self._fitted else 0
     test = TestEncoder()
-    self.assertEqual(type(test.fit), np.lib.function_base.vectorize)
-    self.assertEqual(type(test.transform), np.lib.function_base.vectorize)
     test.fit([1, 2, 3])
-    self.assertEqual(test._fitted, np.array([1, 2, 3]))
-    self.assertEqual(test.transform([1, 2, 3, 4, 5]), np.array(['1', '2', '3', 4, 5]))
+    self.assertEqual(test._fitted, set([1, 2, 3]))
+    self.assertNumpyEqual(test.transform([1, 2, 3, 4, 5]), np.array([1, 2, 3, 0, 0]))
 
   def test_bool_encoder(self):
-    boolEnc = BoolEncoder()
-    self.assertEqual(boolEnc.fit_transform([True, False, False, True]), np.array([1, 0, 0, 1]))
+    boolEnc = data.BoolEncoder()
+    self.assertNumpyEqual(
+      boolEnc.transform([True, False, False, True]),
+      np.array([1, 0, 0, 1]))
 
-# class Encoder:
-#     '''
-#     Useful for PandasData encode_object.
-#     '''
-#     def __init__(self, type=None):
-#         self.encoder = None
-#         self.type = type
+  def test_str_encoder(self):
+    strEnc = data.StrEncoder()
+    self.assertNumpyEqual(
+      strEnc.fit_transform(['test 1', 'test 2', 'test 3', 'test 2']),
+      np.array([0, 1, 2, 1]))
 
-#     def fit(self, x):
-#         ''' This depends on entries being a uniform type '''
-#         x = x.apply(converter)
-#         if not self.encoder:
-#             d = x[0]
-#             if not self.type:
-#                 if type(d) == np.int64 or type(d) == np.float64 or type(d) == int or type(d) == float:
-#                     self.type = type(None)
-#                 elif type(d) == list or type(d) == tuple:
-#                     self.type = type(list)
-#                 elif type(d) == str:
-#                     self.type = type(str)
-#                 elif type(d) == bool or type(d) == np.bool_:
-#                     self.type = type(bool)
-#                 else:
-#                     print('Unexpected type: ', type(d), '\n', d)
-#             if self.type == str:
-#                 self.encoder = preprocessing.LabelEncoder()
-#                 x.fillna(str(), inplace=True)
-#             elif self.type == list:
-#                 self.encoder = ListEncoder()
-#                 x.fillna(list(), inplace=True)
-#             elif self.type == bool:
-#                 self.encoder = BoolEncoder()
+  def test_autodetect_encoder(self):
+    le1 = data.AutodetectEncoder()
+    test1 = np.array(['1', '2', '3', '4', '5'])
+    test1_transformed = le1.fit_transform(test1)
+    self.assertEqual(le1.dtype, int)
+    self.assertEqual(le1.converter, True)
+    self.assertNumpyEqual(test1_transformed, np.array([1, 2, 3, 4, 5]))
+    self.assertNumpyEqual(le1.inverse_transform(test1_transformed), test1)
 
-#     def transform(self, x):
-#         return self.encoder.fit_transform(x) if self.encoder else x
+    le2 = data.AutodetectEncoder()
+    test2 = np.array(['test 1', 'test 2', 'test 3', 'test 2', ' test 5'])
+    test2_transformed = le2.fit_transform(test2)
+    self.assertEqual(le2.dtype, str)
+    self.assertEqual(le2.converter, False)
+    self.assertNumpyEqual(test2_transformed, np.array([0, 1, 2, 1, 3]))
+    self.assertNumpyEqual(le2.inverse_transform(test2_transformed), test2)
 
-#     def fit_transform(self, x):
-#         self.fit(x)
-#         return self.transform(x)
+    le3 = data.AutodetectEncoder()
+    test3 = np.array(['true', 'false'])
+    test3_transformed = le3.fit_transform(test3)
+    self.assertEqual(le3.dtype, bool)
+    self.assertEqual(le3.converter, True)
+    self.assertNumpyEqual(test3_transformed, np.array([1, 0]))
+    self.assertNumpyEqual(le3.inverse_transform(test3_transformed), test3)
 
-#     def inverse_transform(self, x):
-#         return self.encoder.inverse_transform(x) if self.encoder else x
+    le4 = data.AutodetectEncoder()
+    test4 = np.array([1.0, 2.0])
+    test4_transformed = le4.fit_transform(test4)
+    self.assertEqual(le4.dtype, float)
+    self.assertEqual(le4.converter, False)
+    self.assertNumpyEqual(test4_transformed, test4)
+    self.assertNumpyEqual(le4.inverse_transform(test4_transformed), test4)
 
-# class ListEncoder(Encoder):
-#     def __init__(self):
-#         parent().__init__(type)
-#         self.fit = np.vectorize(Encoder.fit)
-#         self.transform = np.vectorize(Encoder.transform)
-
-# class PandasData:
-#     ''' We process pandas dataframes with custom encoders, making it easy to get our data back '''
-
-#     def encode(self, data, **kwargs):
-#         ''' Given data, we encode it with the given encoders '''
-#         self._data = data
-#         self._encoders = {}
-#         for col in self._data:
-#             dtype = self._data[col].dtype
-#             encoder = kwargs.get(col, Encoder)
-#             self._encoders[col] = encoder()
-#             self._data[col] = self._encoders[col].fit_transform(self._data[col])
-#         self._encoder = preprocessing.StandardScaler()
-#         self._data = self._encoder.fit_transform(self._data)
-#     __init__ = encode  # we just use encoder as the constructor
-
-#     def invert(self, data):
-#         ''' Given ecoded data, we should return a data frame with the original data '''
-#         df = pd.DataFrame(columns=list(self._data))
-#         df.append(self._encoder.inverse_transform(data))
-#         for col in self._data:
-#             encoder = self._encoders.get(col)
-#             if encoder:
-#                 df[col] = self._data[col].apply(encoder.inverse_transform)
-#             else:
-#                 df[col] = self._data[col]
-#         return df
-
-#     def data(self):
-#         return self.invert(self._data)
-
-#     def df(self, cols=None, drop_cols=None):
-#         if keep_col is not None:
-#             return self._data[keep_col]
-#         elif drop_cols is not None:
-#             return self._data.drop(drop_col, axis=1)
-#         else:
-#             return self._data
+  def test_pandas_data(self):
+    df = pd.DataFrame([
+      [1, '1', 'test 1', True, 'false'],
+      [2, '2', 'test 2', False, 'true'],
+    ], columns=['nums', 'str_nums', 'strs', 'bools', 'str_bools',])
+    df_expected = pd.DataFrame([
+      [1, 1, 0, 1, 0],
+      [2, 2, 1, 0, 1],
+    ], columns=['nums', 'str_nums', 'strs', 'bools', 'str_bools',])
+    df_wrapped = data.PandasData(df)
+    df_wrapped_df = df_wrapped.df()
+    df_wrapped_inverse = df_wrapped.data()
+    for orig, expected, wrapped, wrapped_inverse in zip(df.iterrows(), df_expected.iterrows(), df_wrapped_df.iterrows(), df_wrapped_inverse.iterrows()):
+      _, orig_row = orig
+      _, expected_row = expected
+      _, wrapped_row = wrapped
+      _, wrapped_inverse_row = wrapped_inverse
+      self.assertNumpyEqual(wrapped_row, expected_row)
+      self.assertNumpyEqual(orig_row, wrapped_inverse_row)

@@ -8,7 +8,7 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name="fdudatamining-framework",
+    name="fdudatamining",
     version="0.0.1",
     author="fdudatamining",
     author_email="ravirao@fdu.edu",
@@ -17,20 +17,29 @@ setup(
     license="GPLv2",
     keywords="datamining",
     url="http://github.com/fdudatamining/framework",
-    packages=['framework'],
     classifiers=[
         "Development Status :: 1 - Planning",
         "Programming Language :: Python :: 3",
         "Topic :: Utilities",
     ],
     install_requires=[
-        'matplotlib',
+        'geopy'
+        'matplotlib', # https://github.com/matplotlib/basemap/archive/v1.1.0.zip
         'numpy',
         'pandas',
-        'pymysql',
         'scipy',
         'sklearn',
+        'sqlalchemy',
     ],
+    setup_requires=[
+        'nose',
+        'coverage',
+    ],
+    packages=['framework'],
+    package_data={
+        '': ['*.sh'],
+    },
+    include_package_data=True,
     test_suite='nose.collector',
     tests_require=['nose'],
 )

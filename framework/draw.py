@@ -20,7 +20,12 @@ import re
 import itertools as it
 import pandas as pd
 import numpy as np
+from .util.args import nargs
+
 import matplotlib
+if os.environ.get('DISPLAY','') == '':
+  print('no display found. Using non-interactive Agg backend')
+  matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from matplotlib import colors
 
@@ -59,6 +64,7 @@ def draw(ax=None, kind=None, save=None, show=False, iplot=False, **kwargs):
   if kind:
     eval('_%s' % (kind))(ax, **kwargs)
   __legend(ax, **kwargs)
+  __colorbar(ax, **kwargs)
   if save:
     __save(ax, save, **kwargs)
   if show:
@@ -69,16 +75,6 @@ def draw(ax=None, kind=None, save=None, show=False, iplot=False, **kwargs):
     plt.clf()
   return ax
 
-
-# Utility functions
-
-
-def __nargs(args, **kwargs):
-  ''' Filter **kwargs removing nulls and args we don't want '''
-  return {k: v for k, v in kwargs.items()
-          if v is not None and k in args}
-
-
 def __subplot(grid=None, subplot=111,
               xlabel=None, ylabel=None,
               xmargin=0.1, ymargin=0.1,
@@ -87,7 +83,7 @@ def __subplot(grid=None, subplot=111,
               scientific=False, **kwargs):
   ax = plt.subplot(subplot)
   if grid:
-    ax.grid(True, which=grid, **__nargs(['linestyle'], **kwargs))
+    ax.grid(True, which=grid, **nargs(['linestyle'], **kwargs))
   if title:
     ax.set_title(title)
   if xlabel:
@@ -99,7 +95,7 @@ def __subplot(grid=None, subplot=111,
   if ylim:
     ax.set_ylim(ylim)
   if xmargin or ymargin:
-    ax.margins(**__nargs(['x', 'y'], x=xmargin, y=ymargin))
+    ax.margins(**nargs(['x', 'y'], x=xmargin, y=ymargin))
   if log:
     if log=='loglog':
       ax.loglog()
@@ -107,36 +103,47 @@ def __subplot(grid=None, subplot=111,
       ax.semilogx()
     elif log=='y' or log=='semilogy':
       ax.semilogy()
-  # if scientific is not None:
-  #   if scientific=='x':
-  #     ax.get_yaxis().get_major_formatter().set_scientific(False)
-  #   elif scientific=='y':
-  #     ax.xaxis.get_major_formatter().set_scientific(False)
-  #   else:
-  #     ax.yaxis.get_major_formatter().set_scientific(scientific)
-  #     ax.xaxis.get_major_formatter().set_scientific(scientific)
+  if scientific is not None:
+    if scientific=='x':
+      ax.get_yaxis().get_major_formatter().set_scientific(False)
+    elif scientific=='y':
+      ax.xaxis.get_major_formatter().set_scientific(False)
+    else:
+      ax.yaxis.get_major_formatter().set_scientific(scientific)
+      ax.xaxis.get_major_formatter().set_scientific(scientific)
   return ax
-
 
 def __legend(ax, legend=None, **kwargs):
   legend_sig = ['labels', 'loc', 'bbox_to_anchor']
   if legend == True:
-    ax.legend(**__nargs(legend_sig, **kwargs))
+    ax.legend(**nargs(legend_sig, **kwargs))
   elif legend == 'bottom':
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height *
                       0.1, box.width, box.height * 0.9])
-    ax.legend(**__nargs(legend_sig,
+    ax.legend(**nargs(legend_sig,
                         **dict(kwargs,
                                loc='upper center',
                                bbox_to_anchor=(0.5, -0.12))))
   elif legend == 'right':
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-    ax.legend(**__nargs(legend_sig,
+    ax.legend(**nargs(legend_sig,
                         **dict(kwargs,
                                loc='center left',
                                bbox_to_anchor=(1.05, 0.5))))
+
+
+def __colorbar(ax, cbar=None, clabel=None,
+               clabel_pad=-40, clabel_y=1.1, clabel_rotation=0,
+               cbar_shrink=0.92, **kwargs):
+  if cbar:
+    cbar = plt.colorbar(**nargs(['shrink'], shrink=cbar_shrink))
+    if clabel:
+      cbar.set_label(clabel,
+        **nargs(['labelpad', 'y', 'rotation'],
+          labelpad=clabel_pad, y=clabel_y, rotation=clabel_rotation,
+          **kwargs))
 
 
 def __save_fmt(fmt):
@@ -158,7 +165,7 @@ def __save_fmt(fmt):
 
 def __save(ax, fname, **kwargs):
   plt.savefig(__save_fmt(fname),
-    **__nargs(['dpi', 'facecolor', 'edgecolor',
+    **nargs(['dpi', 'facecolor', 'edgecolor',
                'orientation', 'papertype', 'format',
                'transparent', 'bbox_inches', 'pad_inches',
                'frameon'],
@@ -172,7 +179,7 @@ def __show(ax, **kwargs):
 
 def __iplot(ax, **kwargs):
   py.iplot_mpl(ax.get_figure(),
-    **__nargs(['scale',],
+    **nargs(['scale',],
               **kwargs))
 
 
@@ -182,7 +189,7 @@ def _plot(ax, x=None, y=None, **kwargs):
   if x is None:
     x = range(len(y))
   ax.plot(x, y,
-    **__nargs(['marker', 'c', 'label', 'linewidth'],
+    **nargs(['marker', 'c', 'label', 'linewidth'],
               **kwargs))
 
 
@@ -190,7 +197,7 @@ def _stem(ax, x=None, y=None, **kwargs):
   if x is None:
     x = range(len(y))
   ax.stem(x, y,
-    **__nargs(['linefmt', 'markerfmt', 'basefmt',
+    **nargs(['linefmt', 'markerfmt', 'basefmt',
                'label', 's', 'c',],
               **kwargs))
 
@@ -199,7 +206,7 @@ def _scatter(ax, x=None, y=None, **kwargs):
   if x is None:
     x = range(len(y))
   ax.scatter(x, y,
-    **__nargs(['s', 'c', 'marker', 'cmap',
+    **nargs(['s', 'c', 'marker', 'cmap',
                'norm', 'vmin', 'vmax', 'alpha',
                'linewidths', 'verts',],
               **kwargs))
@@ -209,7 +216,7 @@ def _errorbar(ax, x=None, y=None, **kwargs):
   if x is None:
     x = range(len(y))
   ax.errorbar(x, y,
-    **__nargs(['label', 'xerr', 'yerr', 'fmt', 'ecolor',
+    **nargs(['label', 'xerr', 'yerr', 'fmt', 'ecolor',
                'elinewidth', 'capsize', 'barsabove',
                'lolims', 'uplims', 'xlolims', 'xuplims',
                'errorevery', 'capthick', 'agg_filter',
@@ -230,7 +237,7 @@ def _errorbar(ax, x=None, y=None, **kwargs):
 
 def _boxplot(ax, x=None, **kwargs):
   ax.boxplot(x,
-    **__nargs(['notch', 'sym', 'vert', 'whis',
+    **nargs(['notch', 'sym', 'vert', 'whis',
                'positions', 'widths', 'patch_artist',
                'bootstrap', 'usermedians', 'conf_intervals',
                'meanline', 'showmeans', 'showcaps',
@@ -243,7 +250,7 @@ def _bar(ax, left=None, height=None, log=None, **kwargs):
   if log is not None:
     log = True
   ax.bar(left, height,
-    **__nargs(['width', 'bottom', 'color', 'orientation', 'log',
+    **nargs(['width', 'bottom', 'color', 'orientation', 'log',
                'edgecolor', 'linewidth', 'tick_label', 'xerr',
                'yerr', 'ecolor', 'capsize', 'error_kw', 'align',
                'agg_filter', 'alpha', 'animated', 'antialiased',
@@ -258,7 +265,7 @@ def _bar(ax, left=None, height=None, log=None, **kwargs):
 
 def _barh(ax, bottom=None, width=None, **kwargs):
   ax.bar(bottom, width,
-    **__nargs(['height', 'left', 'color', 'edgecolor',
+    **nargs(['height', 'left', 'color', 'edgecolor',
                'linewidth', 'tick_label', 'xerr', 'yerr',
                'ecolor', 'capsize', 'error_kw', 'align',
                'log', 'agg_filter', 'alpha', 'animated',
@@ -274,18 +281,34 @@ def _barh(ax, bottom=None, width=None, **kwargs):
 
 def _contourf(ax, x=None, y=None, z=None, **kwargs):
   ax.contourf(x, y, z,
-    **__nargs(['marker', 'cmap', 'alpha'],
+    **nargs(['marker', 'cmap', 'alpha'],
               **kwargs))
 
 def _hist(ax, x=None, **kwargs):
   ax.hist(x,
-    **__nargs(['bins', 'range', 'normed', 'weights',
+    **nargs(['bins', 'range', 'normed', 'weights',
                'cumalative', 'bottom', 'histtype', 'align',
                'orientation', 'rwidth', 'log',
                'color', 'label', 'stacked', 'hold',
                'linewidth', 'edgecolor',],
               **kwargs))
 
+def _heatmap(df=None,
+             origin='low', aspect='auto',
+             interpolation='none',
+             extent=None,
+             **kwargs):
+  if extent is None:
+    extent=(
+        float(a.columns[0].split(',')[0][1:]),
+        float(a.columns[-1].split(',')[1][1:-1]),
+        float(a.index[0].split(',')[0][1:]),
+        float(a.index[-1].split(',')[1][1:-1]))
+  ax.imshow(df.values,
+            **nargs(['origin', 'aspect', 'interpolation', 'extent'],
+                      origin=origin, aspect=aspect,
+                      interpolation=interpolation, extent=extent,
+                      **kwargs))
 
 # Non-trivial drawing routines
 
@@ -315,49 +338,3 @@ def _qq(ax, x=None, **kwargs):
 
 def _pca_variance(ax, pca=None, **kwargs):
   _plot(y=pca.explained_variance_, **kwargs)
-
-
-# Other drawing routines outside of draw
-
-def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, fillna=np.NaN, clabel='Count', **kwargs):
-  ''' 3d binning view that lays out x and y binned in 2 dimensions and then the count in the bins
-  as a color in the z direction or a custom z field and custom `aggfunc` for that field. '''
-  if type(n) == int:
-    # Support different x and y binning, if an iterable
-    #  isn't passed, we turn it into an iterable.
-    n = [n, n]
-  if z is None:
-    # Yes it's hacky, I know. This is required when a count is expected and z isn't
-    #  necessary.
-    if aggfunc is None:
-      aggfunc = 'count'
-    z = '_'
-    df = df[[x, y]]
-    df[z] = 1
-  elif aggfunc is None:
-    aggfunc = 'mean'
-  gx, gy = [pd.cut(df[g], c) for g, c in zip([x,y], n)]
-  # right edges of bins for ticks,
-  # note that pandas uses strings to represent the cuts so we need to parse those
-  g = df.groupby([gx, gy])
-  a = g[z].agg(aggfunc).reset_index() \
-          .pivot_table(index=y, columns=x, values=z) \
-          .fillna(fillna)
-  plt.imshow(a.values,
-             origin='low', aspect='auto',
-             interpolation='none',
-             extent=(
-                 float(a.columns[0].split(',')[0][1:]),
-                 float(a.columns[-1].split(',')[1][1:-1]),
-                 float(a.index[0].split(',')[0][1:]),
-                 float(a.index[-1].split(',')[1][1:-1])),
-             **__nargs(['origin', 'aspect', 'interpolation', 'extent'],
-              **kwargs))
-  cbar = plt.colorbar(shrink=.92)
-  if clabel:
-    cbar.set_label(clabel,
-      **__nargs(['labelpad', 'y', 'rotation'],
-        labelpad=-40, y=1.1, rotation=0, **kwargs))
-  draw(**kwargs)
-  return a
-
