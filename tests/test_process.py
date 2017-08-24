@@ -5,19 +5,7 @@ from . import TestCaseEx
 
 class TestProcess(TestCaseEx):
   def test_outlier_detector(self):
-    mat = np.array([
-      [5,5,5,5,5,5,5,5,5,5,],
-      [5,5,7,5,5,5,5,5,5,5,],
-      [5,5,3,6,5,5,5,5,5,5,],
-      [5,5,5,5,5,5,5,5,5,5,],
-      [5,5,5,5,5,5,5,5,9,5,],
-      [5,5,5,5,5,5,5,5,5,5,],
-      [5,5,3,5,5,5,5,5,5,5,],
-      [5,2,1,5,5,5,5,5,5,5,],
-      [5,5,5,5,5,5,5,5,5,5,],
-      [5,5,5,5,5,5,5,5,5,5,],
-    ])
-    print(process.outlier_detector(mat[:, :-1], mat[:, -1]))
+    pass
 
   def test_iterative_kmeans(self):
     mat = np.array([
