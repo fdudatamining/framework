@@ -8,7 +8,7 @@ from sklearn import    \
     neighbors,         \
     cluster
 
-def outlier_detector(data,
+def outlier_detector(X, y,
                      selector=feature_selection.SelectKBest,
                      cv=model_selection.StratifiedKFold,
                      regressor=linear_model.LinearRegression,
@@ -20,8 +20,8 @@ def outlier_detector(data,
   3. Errors calculated with mahalanobis distance metric
   3. Data with z scores above our threshold is generated
   '''
-  selector = selector()
-  relevant_data = selector.fit_transform(data)
+  selector = selector(k='all')#min(10, len(X))
+  relevant_data = selector.fit_transform(X, y)
   cv = cv(relevant_data)
   regressor = regressor()
   mean_value_line = model_selection.cross_val_predict(regressor, relevant_data, cv=cv)
