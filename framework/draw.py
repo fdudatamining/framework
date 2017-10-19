@@ -293,17 +293,17 @@ def _hist(ax, x=None, **kwargs):
                'linewidth', 'edgecolor',],
               **kwargs))
 
-def _heatmap(df=None,
+def _heatmap(ax, df=None,
              origin='low', aspect='auto',
              interpolation='none',
              extent=None,
              **kwargs):
   if extent is None:
     extent=(
-        float(a.columns[0].split(',')[0][1:]),
-        float(a.columns[-1].split(',')[1][1:-1]),
-        float(a.index[0].split(',')[0][1:]),
-        float(a.index[-1].split(',')[1][1:-1]))
+        float(df.columns[0].left),
+        float(df.columns[-1].left),
+        float(df.index[0].left),
+        float(df.index[-1].left))
   ax.imshow(df.values,
             **nargs(['origin', 'aspect', 'interpolation', 'extent'],
                       origin=origin, aspect=aspect,
