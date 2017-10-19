@@ -75,3 +75,10 @@ def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, fillna=n
   return g[z].agg(aggfunc).reset_index() \
           .pivot_table(index=y, columns=x, values=z) \
           .fillna(fillna)
+
+def polyfit(*kargs):
+  ''' A simple wrapper for np.polyfit that returns a more useful object '''
+  return np.poly1d(
+    np.polyfit(
+      *kargs
+    ))
