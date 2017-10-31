@@ -1,7 +1,7 @@
 #!/bin/env python
 
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def read(fname):
     ''' Read files in this directory '''
@@ -23,19 +23,22 @@ setup(
         "Topic :: Utilities",
     ],
     install_requires=[
-        'geopy'
-        'matplotlib', # https://github.com/matplotlib/basemap/archive/v1.1.0.zip
+        'geopy',
+        'matplotlib',
         'numpy',
         'pandas',
         'scipy',
         'sklearn',
         'sqlalchemy',
     ],
+    dependency_links=[
+        "https://github.com/matplotlib/basemap/archive/v1.1.0.zip#egg=matplotlib-1.1.0"
+    ],
     setup_requires=[
         'nose',
         'coverage',
     ],
-    packages=['framework'],
+    packages=find_packages(),
     package_data={
         '': ['*.sh'],
     },
