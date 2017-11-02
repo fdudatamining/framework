@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 from unittest import TestCase
@@ -27,6 +28,7 @@ class TestDraw(TestCase):
            legend=True))
     draw.draw(kind='plot', x=data, y=data, legend='right')
     draw.draw(kind='plot', x=data, y=data, legend='bottom')
-    draw.draw(kind='plot', x=data, y=data, scientific='x')
-    draw.draw(kind='plot', x=data, y=data, scientific='y')
-    draw.draw(kind='plot', x=data, y=data, scientific=True)
+    draw.draw(kind='plot', x=data, y=data, scientific='x', interactive=True)
+    draw.draw(kind='plot', x=data, y=data, scientific='y', dynamic=True)
+    draw.draw(kind='plot', x=data, y=data, scientific=True, save='test.png')
+    os.remove('test.png')

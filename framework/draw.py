@@ -42,13 +42,18 @@ def cmap(seed):
   np.random.seed(seed)
   return colors.ListedColormap(np.random.rand(256, 3))
 
-def draw(ax=None, kind=None, save=None, show=False, iplot=False, **kwargs):
+def draw(ax=None, kind=None,
+         save=None, show=False,
+         dynamic=False,
+         interactive=False, iplot=False,
+         **kwargs):
   ''' Inline MATPLOTLIB functionality
   @parameters
    ax: plt axis (default None)
    kind: (see draw_kinds for available kinds) (default None)
    save: fname or format (e.g. fig%d.png) (default None)
    show: plt.show (default False)
+   interactive: asynchronously populate graph (for use in loop)
    x, y: data (default None)
    grid: 'x', 'y', 'both' (default None)
    subplot: layout (default 111)
@@ -65,10 +70,14 @@ def draw(ax=None, kind=None, save=None, show=False, iplot=False, **kwargs):
     eval('_%s' % (kind))(ax, **kwargs)
   __legend(ax, **kwargs)
   __colorbar(ax, **kwargs)
+  if interactive:
+    __interactive(ax, **kwargs)
   if save:
     __save(ax, save, **kwargs)
+  if dynamic:
+    __dynamic(ax, **kwargs)
   if show:
-    __show(ax)
+    __show(ax, **kwargs)
   if iplot:
     __iplot(ax, **kwargs)
   if iplot or save or show:
@@ -173,6 +182,11 @@ def __save(ax, fname, **kwargs):
                      bbox_inches='tight',
                      bbox_extra_artists=ax.get_legend_handles_labels()[0] or None)))
 
+def __interactive(ax, **kwargs):
+  plt.ion()
+
+def __dynamic(ax, **kwargs):
+  ax.get_figure().canvas.show()
 
 def __show(ax, **kwargs):
   plt.show()
