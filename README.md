@@ -3,6 +3,37 @@
 [![Coverage Status](https://coveralls.io/repos/github/fdudatamining/framework/badge.svg?branch=develop)](https://coveralls.io/github/fdudatamining/framework?branch=develop)
 [![Build Status](https://travis-ci.org/fdudatamining/framework.svg?branch=develop)](https://travis-ci.org/fdudatamining/framework)
 
+## Installation
+
+### Release Installation
+
+```
+pip install https://github.com/fdudatamining/framework/archive/latest
+```
+
+### Bleeding Edge Installation
+
+```
+git clone https://github.com/fdudatamining/framework
+cd framework
+python setup.py install
+```
+
+### Development Installation
+
+It's recommended that you install the relevant packages for the framework in a virtual environment
+```
+virtualenv env
+source env/bin/activate
+python setup.py develop
+```
+
+### Matplotlib basemap
+
+If you receive an error about geopy--install matplotlib's basemap from the source repository: <https://github.com/matplotlib/basemap/>.
+
+`pip install https://github.com/matplotlib/basemap/archive/v1.1.0.zip`
+
 ## Framework Outline
 
 This outline and framework is very much a draft, please don't expect to framework to work too much magic before it is complete. In particular, the model and process modules are currently in development, data has a few known issues with some conversions, but draw should work quite well.

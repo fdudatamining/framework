@@ -8,7 +8,7 @@ from sklearn import    \
     neighbors,         \
     cluster
 
-def outlier_detector(data,
+def outlier_detector(X, y,
                      selector=feature_selection.SelectKBest,
                      cv=model_selection.StratifiedKFold,
                      regressor=linear_model.LinearRegression,
@@ -20,8 +20,8 @@ def outlier_detector(data,
   3. Errors calculated with mahalanobis distance metric
   3. Data with z scores above our threshold is generated
   '''
-  selector = selector()
-  relevant_data = selector.fit_transform(data)
+  selector = selector(k='all')#min(10, len(X))
+  relevant_data = selector.fit_transform(X, y)
   cv = cv(relevant_data)
   regressor = regressor()
   mean_value_line = model_selection.cross_val_predict(regressor, relevant_data, cv=cv)
@@ -75,3 +75,10 @@ def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, fillna=n
   return g[z].agg(aggfunc).reset_index() \
           .pivot_table(index=y, columns=x, values=z) \
           .fillna(fillna)
+
+def polyfit(*kargs):
+  ''' A simple wrapper for np.polyfit that returns a more useful object '''
+  return np.poly1d(
+    np.polyfit(
+      *kargs
+    ))
