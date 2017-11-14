@@ -338,3 +338,27 @@ def _qq(ax, x=None, **kwargs):
 
 def _pca_variance(ax, pca=None, **kwargs):
   _plot(y=pca.explained_variance_, **kwargs)
+
+def _decision_boundary(ax, clf=None, x=None, y=None, xlim=None, ylim=None, h=0.2, **kwargs):
+  cm = plt.cm.RdBu
+  cm_bright = colors.ListedColormap(['#FF0000', '#0000FF'])
+  x_min, x_max = x[:, 0].min() - .5, x[:, 0].max() + .5
+  y_min, y_max = x[:, 1].min() - .5, x[:, 1].max() + .5
+  xx, yy = np.meshgrid(np.arange(x_min, x_max, h),
+                       np.arange(y_min, y_max, h))
+
+  if hasattr(clf, 'decision_function'):
+    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+  elif hasattr(clf, 'predict_proba'):
+    Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1]
+  else:
+    assert(False)
+  Z = Z.reshape(xx.shape)
+
+  ax = draw(ax=ax, kind='contourf', x=xx, y=yy, z=Z, cmap=cm, alpha=0.8)
+  ax = draw(ax=ax, kind='scatter', x=x[:, 0], y=x[:, 1], c=y, cmap=cm_bright)
+  if xlim is None:
+    xlim = (xx.min(), xx.max())
+  if ylim is None:
+    ylim = (yy.min(), yy.max())
+  return draw(ax=ax, xlim=xlim, ylim=ylim, **kwargs)

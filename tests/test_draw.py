@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 from unittest import TestCase
 from framework import draw
 
@@ -30,3 +31,10 @@ class TestDraw(TestCase):
     draw.draw(kind='plot', x=data, y=data, scientific='x')
     draw.draw(kind='plot', x=data, y=data, scientific='y')
     draw.draw(kind='plot', x=data, y=data, scientific=True)
+
+  def test_draw_clf(self):
+    lr = LinearRegression()
+    X = np.array([[1,2,], [4,5], [5,6]])
+    y = np.array([1, 2, 3,])
+    lr.fit(X, y)
+    draw.draw(kind='decision_boundary', clf=lr, x=X, y=y)
