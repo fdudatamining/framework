@@ -149,7 +149,7 @@ class Figure(Draw):
               squeeze=True, num=None,
               figsize=None, dpi=None,
               facecolor=None, edgecolor=None,
-              frameon=True, clear=False,
+              frameon=True,
               **kwargs):
     self.fig, self.ax = plt.subplots(**nargs(locals()))
 
