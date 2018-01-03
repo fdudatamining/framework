@@ -20,16 +20,16 @@ else:
   py = None
 
 # kind registration decorator
-_kinds = {}
+draw_kinds = {}
 def register(kind):
   def _register(obj):
-    _kinds[kind] = obj
+    draw_kinds[kind] = obj
     return obj
   return _register
 
 # primary function to build classes
 def draw(kind='plot', **kwargs):
-  return _kinds[kind](kind=kind, **kwargs)
+  return draw_kinds[kind](kind=kind, **kwargs)
 
 # Util function
 def nargs(l, omit=[]):

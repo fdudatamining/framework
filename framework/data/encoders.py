@@ -1,26 +1,5 @@
-import os
 import json
-import sqlalchemy
-import pandas as pd
 import numpy as np
-import itertools as it
-from collections import OrderedDict
-from sklearn import preprocessing
-
-sql = lambda db: sqlalchemy.create_engine(
-  json.load(
-    open(os.path.expanduser('~/.sql.conf'), 'r'))['uri']+db)
-
-def sql_to_csv(query, *args, script='%s/sql_to_csv.sh' % (os.path.abspath(os.path.dirname(__file__)))):
-    ''' We execute this script in another thread after getting the temporary fifo and returning it
-    that fifo can then be treated as a file for the output of the provided query. '''
-    from threading import Thread
-    from subprocess import Popen, PIPE
-    p = Popen([script, *args], stdin=PIPE, stdout=PIPE)
-    f = p.stdout.readline().strip().decode()
-    t = Thread(target=p.communicate, kwargs={'input': query.encode()})
-    t.start()
-    return f
 
 def converter(x):
     '''
@@ -44,16 +23,17 @@ def inverse_converter(x):
             pass
     return x
 
+
 class VectorizeEncoder:
     def _fit(self, x):
         pass
-    
+
     def fit(self, x):
         return np.vectorize(self._fit)(x)
 
     def _transform(self, x):
         pass
-    
+
     def transform(self, x):
         return np.vectorize(self._transform)(x)
 
@@ -78,11 +58,13 @@ class BoolEncoder(VectorizeEncoder):
     def _inverse_transform(self, x):
         return False if x == 0 else True
 
+
 class StrEncoder(VectorizeEncoder):
     def __init__(self, classes={}):
         super().__init__()
         self.classes_ = classes
-        self.inverse_classes_ = [i[1] for i in sorted(list(reversed(c)) for c in classes.items())]
+        self.inverse_classes_ = [i[1] for i in sorted(
+            list(reversed(c)) for c in classes.items())]
         self.n_ = len(self.inverse_classes_)
 
     def _fit(self, x):
@@ -101,10 +83,12 @@ class StrEncoder(VectorizeEncoder):
         assert type(x) == int or type(x) == np.int64, type(x)
         return self.inverse_classes_[int(x)]
 
+
 class AutodetectEncoder(VectorizeEncoder):
     '''
     A wrapper around encoders to provide encoder autodetection.
     '''
+
     def __init__(self, encoder=None, converter=None, dtype=None):
         super().__init__()
         self.converter = converter
@@ -146,38 +130,3 @@ class AutodetectEncoder(VectorizeEncoder):
 
     def inverse_transform(self, x):
         return np.vectorize(self._inverse_transform, otypes=[np.str_] if self.converter or self.dtype == str else None)(x)
-
-class PandasData:
-    ''' We process pandas dataframes with custom encoders, making it easy to get our data back '''
-
-    def encode(self, data, **kwargs):
-        ''' Given data, we encode it with the given encoders '''
-        self._data = data.copy()
-        self._encoders = {}
-        for col in self._data:
-            dtype = self._data[col].dtype
-            encoder = kwargs.get(col, AutodetectEncoder)
-            self._encoders[col] = encoder()
-            self._data[col] = self._encoders[col].fit_transform(self._data[col])
-        # self._encoder = preprocessing.StandardScaler()
-        # self._data.ix[:] = self._encoder.fit_transform(self._data)
-    __init__ = encode  # we just use encoder as the constructor
-
-    def invert(self, df):
-        ''' Given ecoded data, we should return a data frame with the original data '''
-        for col in df.columns:
-            encoder = self._encoders.get(col)
-            if encoder:
-                df[col] = encoder.inverse_transform(df[col])
-        return df
-
-    def data(self):
-        return self.invert(self.df())
-
-    def df(self, keep_cols=None, drop_cols=None):
-        if keep_cols is not None:
-            return self._data[keep_cols]
-        elif drop_cols is not None:
-            return self._data.drop(drop_cols, axis=1)
-        else:
-            return self._data.copy()

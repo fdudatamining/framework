@@ -8,6 +8,8 @@ from sklearn import    \
     neighbors,         \
     cluster
 
+from .tunable import *
+
 def outlier_detector(X, y,
                      selector=feature_selection.SelectKBest,
                      cv=model_selection.StratifiedKFold,
