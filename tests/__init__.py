@@ -10,8 +10,8 @@ class TestCaseEx(TestCase):
                      '%s != %s' % (a.shape, b.shape))
     try:
       self.assertTrue(
-          np.equal(a, b).all(),
-          '%s != %s' % (a, b))
+        all([aa == bb for aa in a for bb in b]),
+        '%s != %s' % (a, b))
     except:
       self.assertEqual(a.tolist(), b.tolist(), '%s != %s' % (a, b))
 

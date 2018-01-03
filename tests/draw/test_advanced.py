@@ -23,16 +23,16 @@ y = np.array([
 
 class TestAdvancedPlots(TestCase):
   def test_heatmap(self):
-    draw.draw(kind='heatmap', df=pd.DataFrame(X))
+    draw.draw(clear=True, kind='heatmap', df=pd.DataFrame(X))
   
   def test_decision_boundary(self):
     pass
     # clf = SVC()
     # clf.fit(X[:, :2], y)
-    # draw.draw(kind='decision_boundary', clf=clf, x=X[:, 0], y=X[:, 1], y_true=y)
+    # draw.draw(clear=True, kind='decision_boundary', clf=clf, x=X[:, 0], y=X[:, 1], y_true=y)
 
   def test_regression(self):
-    draw.draw(kind='regression', x=y, y=y)
+    draw.draw(clear=True, kind='regression', x=y, y=y)
   
   def test_probplot(self):
-    draw.draw(kind='probplot', x=y)
+    draw.draw(clear=True, kind='probplot', x=y)

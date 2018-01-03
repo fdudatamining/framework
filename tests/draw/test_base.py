@@ -5,61 +5,61 @@ from framework import draw
 class TestFigure(TestCase):
   def test_ax(self):
     d=draw.draw()
-    draw.draw(ax=d.ax)
+    draw.draw(clear=True, ax=d.ax)
   
   def test_grid(self):
-    draw.draw(grid='both', axis='both')
-    draw.draw(grid='major', axis='x')
-    draw.draw(grid='minor', axis='y')
+    draw.draw(clear=True, grid='both', axis='both')
+    draw.draw(clear=True, grid='major', axis='x')
+    draw.draw(clear=True, grid='minor', axis='y')
 
   def test_title(self):
-    draw.draw(title='test')
+    draw.draw(clear=True, title='test')
 
   def test_label(self):
-    draw.draw(xlabel='test')
-    draw.draw(ylabel='test')
+    draw.draw(clear=True, xlabel='test')
+    draw.draw(clear=True, ylabel='test')
 
   def test_lim(self):
-    draw.draw(xlim=(-1, 1))
-    draw.draw(ylim=(-1, 1))
+    draw.draw(clear=True, xlim=(-1, 1))
+    draw.draw(clear=True, ylim=(-1, 1))
   
   def test_margin(self):
-    draw.draw(xmargin=1)
-    draw.draw(ymargin=1)
+    draw.draw(clear=True, xmargin=1)
+    draw.draw(clear=True, ymargin=1)
 
   def test_log(self):
-    draw.draw(log='loglog')
-    draw.draw(log='x')
-    draw.draw(log='semilogx')
-    draw.draw(log='y')
-    draw.draw(log='semilogy')
+    draw.draw(clear=True, log='loglog')
+    draw.draw(clear=True, log='x')
+    draw.draw(clear=True, log='semilogx')
+    draw.draw(clear=True, log='y')
+    draw.draw(clear=True, log='semilogy')
 
   def test_scientific(self):
-    draw.draw(scientific='x')
-    draw.draw(scientific='y')
-    draw.draw(scientific=True)
-    draw.draw(scientific=False)
+    draw.draw(clear=True, scientific='x')
+    draw.draw(clear=True, scientific='y')
+    draw.draw(clear=True, scientific=True)
+    draw.draw(clear=True, scientific=False)
 
   def test_legend(self):
-    draw.draw(legend=True)
-    draw.draw(legend='bottom')
-    draw.draw(legend='right')
+    draw.draw(clear=True, legend=True)
+    draw.draw(clear=True, legend='bottom')
+    draw.draw(clear=True, legend='right')
   
   def test_cbar(self):
-    draw.draw(cbar=True)
-    draw.draw(cbar=True, clabel=True)
+    draw.draw(clear=True, cbar=True)
+    draw.draw(clear=True, cbar=True, clabel=True)
 
 class TestDisplay(TestCase):
   def test_save(self):
-    draw.draw(save='test.png')
+    draw.draw(clear=True, save='test.png')
     os.remove('test.png')
 
   def test_save_fmt(self):
-    draw.draw(save='test%d.png')
+    draw.draw(clear=True, save='test%d.png')
     os.remove('test0.png')
 
   def test_show(self):
-    draw.draw(show=True, block=False)
+    draw.draw(clear=True, show=True, block=False)
   
   def test_iplot(self):
-    draw.draw(iplot=True)
+    draw.draw(clear=True, iplot=True)

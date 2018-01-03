@@ -222,7 +222,7 @@ class TestTunable(TestCaseEx):
 
   def test_tunable_iterable(self):
     for i, r in enumerate(TunableIterable(it.count())):
-      self.assertEquals(i, r)
+      self.assertEqual(i, r)
       if i > 10:
         break
 
@@ -232,7 +232,7 @@ class TestTunable(TestCaseEx):
       a=TunableIterable(it.count()),
     )
     for i, r in enumerate(t):
-      self.assertEquals(
+      self.assertEqual(
         ((i,), dict(a=i)),
         r
       )
@@ -244,7 +244,7 @@ class TestTunable(TestCaseEx):
       TunableIterable(it.count()),
     )
     for i, r in enumerate(t):
-      self.assertEquals(
+      self.assertEqual(
         (i, (i,)),
         r
       )
@@ -256,7 +256,7 @@ class TestTunable(TestCaseEx):
   #     TunableChoice(1,2,3),
   #   )
   #   for i, r in enumerate(t):
-  #     self.assertEquals(
+  #     self.assertEqual(
   #       (i, (i,)),
   #       r
   #     )

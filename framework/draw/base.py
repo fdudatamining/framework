@@ -160,7 +160,7 @@ class Figure(Draw):
     self.ax.margins(**nargs(locals()))
 
 class Display(Draw):
-  def end(self, save=None, show=False, iplot=False, **kwargs):
+  def end(self, save=None, show=False, iplot=False, clear=False, **kwargs):
     if save:
       self.save(save=save, **kwargs)
 
@@ -169,7 +169,7 @@ class Display(Draw):
     elif show:
       self.show(**kwargs)
 
-    if iplot or save or show:
+    if clear or iplot or save or show:
       self.clear(**kwargs)
 
   def save(self, save=None, **kwargs):
