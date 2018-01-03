@@ -7,7 +7,7 @@ install:
   - pip install coveralls
 # command to run tests (python setup.py test)
 script:
-  python ./setup.py test
+  nosetests
 after_success:
   coveralls
 notifications:
