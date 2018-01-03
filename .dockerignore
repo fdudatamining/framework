@@ -1,2 +1,11 @@
-.*
+__pycache__/
+.coverage
+.eggs/
+.vscode/
+*.egg-info/
+*.pyc
+*.swp
+.travis.yml
+.git
+.gitignore
 Dockerfile
