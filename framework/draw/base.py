@@ -174,20 +174,20 @@ class Display(Draw):
 
   def save(self, save=None, **kwargs):
     self.savefig(
-      fname=self.savefmt(
+      save=self.savefmt(
         save=save,
         **kwargs
       ),
       **kwargs
     )
 
-  def savefig(self, fname=None, dpi=None, facecolor=None, edgecolor=None,
+  def savefig(self, save=None, dpi=None, facecolor=None, edgecolor=None,
               orientation=None, papertype=None, format=None,
               transparent=None, bbox_inches='tight', pad_inches=None,
               frameon=None, bbox_extra_artists=None, **kwargs):
     if bbox_extra_artists is None:
       bbox_extra_artists = self.ax.get_legend_handles_labels()[0] or None
-    plt.savefig(**nargs(locals()))
+    plt.savefig(save, **nargs(locals(), ['save']))
 
   def savefmt(self, save=None, **kwargs):
     if save.find('%d') != -1:
