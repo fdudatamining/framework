@@ -104,7 +104,7 @@ class BarPlot(Plot):
           sketch_params=None, snap=None, transform=None, url=None,
           visible=None, zorder=None,  orientation=None, log=None,
           error_kw=None, align=None, **kwargs):
-    self.ax.bar(**nargs(locals()))
+    self.ax.bar(x, height, width, **nargs(locals(), ['x', 'height', 'width']))
 
 @register('contour')
 class ContourPlot(Plot):
