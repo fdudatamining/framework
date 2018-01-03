@@ -326,6 +326,24 @@ def _heatmap(ax, df=None,
 
 # Non-trivial drawing routines
 
+def _bar_value(ax, x=None, y=None, padding=None, **kwargs):
+  if x is None:
+    x = range(len(y))
+  x_widths = [
+      nx - cx - (padding if padding is not None else 0)
+      for cx, nx in zip(x[:-1], x[1:])
+  ]
+  x_centers = [
+      (cx + nx) / 2
+      for cx, nx in zip(x[:-1], x[1:])
+  ]
+  ax.bar(x=x_centers, height=y,
+         width=x_widths, align='center',
+         **nargs(['color', 'edgecolor', 'linewidth',
+                  'tick_label', 'xerr', 'yerr', 'ecolor',
+                  'capsize', 'error_kw', 'log',],
+                 **kwargs))
+
 def _svc(ax, clf=None, x=None, y=None, h=0.02, alpha=0.8, cmap=plt.cm.Paired, **kwargs):
   ''' http://scikit-learn.org/stable/auto_examples/svm/plot_iris.html '''
   x_min, x_max = x[:, 0].min() - 1, x[:, 0].max() + 1
