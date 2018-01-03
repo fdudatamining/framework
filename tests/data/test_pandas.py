@@ -1,6 +1,6 @@
 import pandas as pd
 from framework import data
-from . import TestCaseEx
+from .. import TestCaseEx
 
 class TestPandasData(TestCaseEx):
   def test_pandas_data(self):

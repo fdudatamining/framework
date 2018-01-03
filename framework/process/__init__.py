@@ -49,8 +49,14 @@ def iterative_kmeans(X, z=0.01, n_clusters=8, **kwargs):
         break
     X = X[np.in1d(x, c[c >= thresh].index)]
 
+def aggregate_bins1d(x=None, n=10, aggfunc='count', fillna=np.NaN):
+  ''' An easier to use histogram function '''
+  c = pd.cut(x, n)
+  g = pd.Series(x).groupby(c)
+  return g.agg(aggfunc)
+
 def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, fillna=np.NaN):
-  ''' 3d binning view that lays out x and y binned in 2 dimensions and then the count in the bins
+  ''' 2d/3d binning view that lays out x and y binned in 2 dimensions and then the count in the bins
   as a color in the z direction or a custom z field and custom `aggfunc` for that field.
   To plot use:
     df = aggregate_bins(...)

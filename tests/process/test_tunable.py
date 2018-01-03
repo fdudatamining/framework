@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from . import TestCaseEx
+from .. import TestCaseEx
 from framework.process import *
 
 def dummy(*kargs, **kwargs):

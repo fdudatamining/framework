@@ -47,6 +47,9 @@ class VectorizeEncoder:
         self.fit(x)
         return self.transform(x)
 
+    def __str__(self):
+        return '%s' % (self.__class__.__name__)
+    __repr__ = __str__
 
 class BoolEncoder(VectorizeEncoder):
     def _fit(self, x):
@@ -83,6 +86,9 @@ class StrEncoder(VectorizeEncoder):
         assert type(x) == int or type(x) == np.int64, type(x)
         return self.inverse_classes_[int(x)]
 
+    def __str__(self):
+        return '%s(n_=%d, classes_=%s)' % (self.__class__.__name__, self.n_, str(self.classes_))
+    __repr__ = __str__
 
 class AutodetectEncoder(VectorizeEncoder):
     '''
@@ -130,3 +136,6 @@ class AutodetectEncoder(VectorizeEncoder):
 
     def inverse_transform(self, x):
         return np.vectorize(self._inverse_transform, otypes=[np.str_] if self.converter or self.dtype == str else None)(x)
+
+    def __repr__(self):
+        return '%s(dtype=%s, encoder=%s)' % (self.__class__.__name__, str(self.dtype), str(self.encoder))

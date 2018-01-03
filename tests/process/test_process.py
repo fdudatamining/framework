@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from framework import process
-from . import TestCaseEx
+from .. import TestCaseEx
 
 class TestProcess(TestCaseEx):
   def test_outlier_detector(self):
@@ -25,6 +25,11 @@ class TestProcess(TestCaseEx):
         for outlier in cluster:
           self.assertNotEqual(outlier.mean(), 5, 'Common row should not be an outlier')
           print(n, outlier)
+
+  def test_aggregate_bins1d(self):
+    x = [1,2,2,3,3,3,4,4,4,4,5,5,5,5,5,]
+    res = process.aggregate_bins1d(x, n=5)
+    self.assertNumpyEqual(res.as_matrix(), np.array([1,2,3,4,5]))
 
   def test_aggregate_bins(self):
     df = pd.DataFrame([

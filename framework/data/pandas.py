@@ -8,18 +8,17 @@ class PandasData:
         ''' Given data, we encode it with the given encoders '''
         self._data = data.copy()
         self._encoders = {}
-        for col in self._data:
+        for col in self._data.columns:
             dtype = self._data[col].dtype
             encoder = kwargs.get(col, AutodetectEncoder)
             self._encoders[col] = encoder()
-            self._data[col] = self._encoders[col].fit_transform(
-                self._data[col])
+            self._data[col] = self._encoders[col].fit_transform(self._data[col])
         # self._encoder = preprocessing.StandardScaler()
         # self._data.ix[:] = self._encoder.fit_transform(self._data)
     __init__ = encode  # we just use encoder as the constructor
 
     def invert(self, df):
-        ''' Given ecoded data, we should return a data frame with the original data '''
+        ''' Given encoded data, we should return a data frame with the original data '''
         for col in df.columns:
             encoder = self._encoders.get(col)
             if encoder:
@@ -36,3 +35,8 @@ class PandasData:
             return self._data.drop(drop_cols, axis=1)
         else:
             return self._data.copy()
+    
+    def __str__(self):
+        return '%s(_encoders=%s)' % (self.__class__.__name__, str(self._encoders))
+    __repr__ = __str__
+    

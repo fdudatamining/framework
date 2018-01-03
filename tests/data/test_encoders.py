@@ -1,6 +1,6 @@
 import numpy as np
 from framework import data
-from . import TestCaseEx
+from .. import TestCaseEx
 
 class TestEncoders(TestCaseEx):
   def test_converter(self):

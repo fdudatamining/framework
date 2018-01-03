@@ -2,7 +2,7 @@ import numpy as np
 from unittest import TestCase
 
 class TestCaseEx(TestCase):
-  def assertNumpyEqual(self, a : np.array, b : np.array):
+  def assertNumpyEqual(self, a: np.array, b: np.array):
     print('%s == %s ?' % (a, b))
     self.assertEqual(a.dtype, b.dtype,
                      '%s != %s' % (a.dtype, b.dtype))
@@ -10,7 +10,19 @@ class TestCaseEx(TestCase):
                      '%s != %s' % (a.shape, b.shape))
     try:
       self.assertTrue(
-        np.equal(a, b).all(),
-        '%s != %s' % (a, b))
+          np.equal(a, b).all(),
+          '%s != %s' % (a, b))
     except:
       self.assertEqual(a.tolist(), b.tolist(), '%s != %s' % (a, b))
+
+  def assertMatchAnyOrder(self, a, b, c=None):
+    a = list(a)
+    b = list(b)
+    print('Comparing \n%s\n and \n%s' % (repr(a), repr(b)))
+    self.assertEqual(len(a), len(b), 'len(%s) != len(%s)' % (repr(a), repr(b)))
+    for aa in a:
+      if aa not in b:
+        self.fail('%s not in %s' % (repr(aa), repr(b)) if c is None else c)
+    for bb in b:
+      if bb not in a:
+        self.fail('%s not in %s' % (repr(bb), repr(a)) if c is None else c)
