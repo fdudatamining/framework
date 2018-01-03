@@ -1,7 +1,7 @@
 # Fairleigh Dickinson University Datamining Framework
 
-[![Coverage Status](https://coveralls.io/repos/github/fdudatamining/framework/badge.svg?branch=develop)](https://coveralls.io/github/fdudatamining/framework?branch=develop)
-[![Build Status](https://travis-ci.org/fdudatamining/framework.svg?branch=develop)](https://travis-ci.org/fdudatamining/framework)
+[![Coverage Status](https://coveralls.io/repos/github/fdudatamining/framework/badge.svg?branch=master)](https://coveralls.io/github/fdudatamining/framework?branch=master)
+[![Build Status](https://travis-ci.org/fdudatamining/framework.svg?branch=master)](https://travis-ci.org/fdudatamining/framework)
 
 ## Installation
 
