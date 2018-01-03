@@ -3,6 +3,11 @@ from unittest import TestCase
 from framework import draw
 
 class TestFigure(TestCase):
+  def test_invalid_exception(self):
+    with self.assertRaises(Exception) as context:
+      draw.draw(kind='')
+    self.assertTrue('is not a valid plot type' in str(context.exception))
+
   def test_ax(self):
     d=draw.draw()
     draw.draw(clear=True, ax=d.ax)

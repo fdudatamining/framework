@@ -29,7 +29,10 @@ def register(kind):
 
 # primary function to build classes
 def draw(kind='plot', **kwargs):
-  return draw_kinds[kind](kind=kind, **kwargs)
+  plot = draw_kinds.get(kind, None)
+  if plot is None:
+    raise Exception('%s is not a valid plot type. See `draw_kinds` for available plot types.' % (kind))
+  return plot(kind=kind, **kwargs)
 
 # Util function
 def nargs(l, omit=[]):
