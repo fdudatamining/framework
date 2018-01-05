@@ -4,17 +4,20 @@ from .base import *
 
 @register('line')
 class LinePlot(Plot):
-  def render(self, x=None, y=None, size=None, color='b', alpha=1, **kwargs):
+  def render(self, x=None, y=None, marker=None, size=None, color='b', alpha=1, **kwargs):
     if x is None:
       x = range(len(y))
-    self.line(x=x, y=y, s=size, c=color, alpha=alpha, **kwargs)
-  
+    self.line(x=x, y=y, marker=marker, s=size, c=color, alpha=alpha, **kwargs)
+
   def line(self, x=None, y=None, s=None, c=None, alpha=None,
            marker=None, cmap=None, norm=None,
            vmin=None, vmax=None, label=None,
            linewidths=None, verts=None, edgecolors=None,
            **kwargs):
-    self.ax.plot(**nargs(locals()))
+    if marker is not None:
+      self.ax.plot(x, y, marker, **nargs(locals(), ['x', 'y', 'marker']))
+    else:
+      self.ax.plot(x, y, **nargs(locals(), ['x', 'y', 'marker']))
 
 @register('scatter')
 class ScatterPlot(Plot):
@@ -22,7 +25,7 @@ class ScatterPlot(Plot):
     if x is None:
       x = range(len(y))
     self.scatter(x=x, y=y, s=size, c=color, alpha=alpha, **kwargs)
-  
+
   def scatter(self, x=None, y=None, s=None, c=None, alpha=None,
               marker=None, cmap=None, norm=None, label=None,
               vmin=None, vmax=None, verts=None, edgecolors=None,
@@ -49,7 +52,7 @@ class ErrorBarPlot(Plot):
       x = range(len(y))
     self.errorbar(x=x, y=y, s=size, c=color, alpha=alpha,
                   xerr=xerr, yerr=yerr, **kwargs)
-  
+
   def errorbar(self, x=None, y=None, label=None, xerr=None, yerr=None,
                fmt=None, ecolor=None, elinewidth=None, capsize=None,
                lolims=None, uplims=None, xlolims=None, xuplims=None,
@@ -72,7 +75,7 @@ class ErrorBarPlot(Plot):
 class BoxPlot(Plot):
   def render(self, x=None, **kwargs):
     self.boxplot(x=x, **kwargs)
-  
+
   def boxplot(self, x=None, notch=None, sym=None, vert=None, whis=None,
               positions=None, widths=None, patch_artist=None,
               bootstrap=None, usermedians=None, conf_intervals=None,
@@ -110,7 +113,7 @@ class BarPlot(Plot):
 class ContourPlot(Plot):
   def render(self, x=None, y=None, z=None, **kwargs):
     self.contourf(x=x, y=y, z=z, **kwargs)
-  
+
   def contourf(self, x=None, y=None, z=None,
                marker=None, cmap=None, alpha=None,
                **kwargs):

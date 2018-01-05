@@ -38,7 +38,7 @@ class DecisionBoundaryPlot(ContourPlot, ScatterPlot):
       Z = clf.predict_proba(np.c_[xx.ravel(), yy.ravel()])[:, 1]
     else:
       assert(False)
-  
+
     Z = Z.reshape(xx.shape)
 
     ContourPlot.render(self, x=xx, y=yy, z=Z, cmap=cmap, alpha=alpha, **kwargs)
@@ -54,7 +54,7 @@ class RegPlot(ScatterPlot, LinePlot):
   def render(self, x=None, y=None, **kwargs):
     y_fit = np.poly1d(np.polyfit(x, y, 1))
     ScatterPlot.render(self, x=x, y=y, **kwargs)
-    LinePlot.render(self, x=x, y=y_fit(x), **kwargs)
+    LinePlot.render(self, x=[min(x), max(x)], y=y_fit([min(x), max(x)]), **kwargs)
 
 @register('probplot')
 class ProbPlot(Plot):
