@@ -315,3 +315,19 @@ class TestTunable(TestCaseEx):
           complexity(T2_len),
           T2_normalized_time)
     assert difference < .01, difference
+
+  def test_tunable_strange_ordering(self):
+    self.assertMatchAnyOrder(
+        Tunable(dummy,
+                1, 2,
+          TunableChoice(
+            a=3, b=4,
+          ),
+          TunableChoice(5, 6,),
+        ),
+        [
+          ((1, 2, 5), {'a': 3}),
+          ((1, 2, 5), {'b': 4}),
+          ((1, 2, 6), {'a': 3}),
+          ((1, 2, 6), {'b': 4}),
+        ])

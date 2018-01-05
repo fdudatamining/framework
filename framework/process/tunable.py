@@ -1,6 +1,8 @@
 import itertools as it
 import collections
 
+def sorted_groupby(a, key=None):
+  return it.groupby(sorted(a, key=key), key=key)
 class Tunable:
   def __init__(self, *kargs, **kwargs):
     ''' First arg is obj if it's callable, else obj is None '''
@@ -33,7 +35,7 @@ class Tunable:
        (['First karg[0] option'], {'key': 'Random kwarg["key"] option'})
     '''
     grouped = {typ: [g for g in groups]
-               for typ, groups in it.groupby(args, key=Tunable.arg_type)}
+               for typ, groups in sorted_groupby(args, key=Tunable.arg_type)}
     return ([v for k, v in sorted(grouped.get('karg', []))],
             {k: v for k, v in grouped.get('kwarg', [])})
 
@@ -43,8 +45,10 @@ class Tunable:
       When labels is true, each value is instead a (label, value) pair--we are looking up
        the value so we remove it.
     '''
-    return [(key, v[1] if labels else v)
-            for v in results]
+    for v in results:
+      if labels:
+        v = v[1]
+      yield (key, v)
 
   def build_args(self, lookup={}, labels=False):
     '''
@@ -225,8 +229,13 @@ class TunableChoice(Tunable):
 
   def handle_lookup(self, key, results, labels=False):
     ''' If dict, treat as kwarg in parent Tunable '''
-    return [(v[1] if labels else v).popitem() if type(v) == dict else (key, v[1] if labels else v)
-            for v in results]
+    for v in results:
+      if labels:
+        v = v[1]
+      if type(v) == dict:
+        yield v.popitem()
+      else:
+        yield (key, v)
 
   def __repr__(self):
     ''' Understand choices with || (or) operator '''
