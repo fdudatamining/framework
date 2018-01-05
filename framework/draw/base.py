@@ -66,15 +66,17 @@ class Draw:
     pass
 
 class Figure(Draw):
-  def begin(self, ax=None, title=None,
+  def begin(self, ax=None, fig=None,
             xlabel=None, ylabel=None,
             xlim=None, ylim=None,
             xmargin=None, ymargin=None,
             log=None, scientific=None,
-            grid=None, **kwargs):
-    if ax is not None:
-      self.ax = ax
-    elif getattr(self, 'ax', None) is None:
+            grid=None, title=None,
+            **kwargs):
+    self.ax = ax
+    self.fig = fig
+
+    if self.ax is None:
       self.subplot(**kwargs)
 
     if grid is not None:
@@ -113,7 +115,7 @@ class Figure(Draw):
       self.ax.yaxis.get_major_formatter().set_scientific(scientific)
       self.ax.xaxis.get_major_formatter().set_scientific(scientific)
   
-  def end(self, legend=None, cbar=None, **kwargs):
+  def end(self, legend=None, **kwargs):
     if legend == 'bottom':
       box = self.ax.get_position()
       self.ax.set_position([box.x0, box.y0 + box.height *
@@ -126,25 +128,25 @@ class Figure(Draw):
     elif legend is not None:
       self.legend(**kwargs)
 
-    if cbar is not None:
-      self.cbar(cbar=cbar, **kwargs)
+    # if cbar is not None:
+    #   self.cbar(cbar=cbar, **kwargs)
   
   def legend(self, labels=None, loc=None, bbox_to_anchor=None, **kwargs):
     self.ax.legend(**nargs(locals()))
 
-  def cbar(self, cbar=None, clabel=None,
-               clabel_pad=-40, clabel_y=1.1, clabel_rotation=0,
-               cbar_shrink=0.92, **kwargs):
-    if cbar is not None:
-      self.colorbar(shrink=cbar_shrink, **kwargs)
-      if clabel is not None:
-        self.clabel(labelpad=clabel_pad, y=clabel_y, rotation=clabel_rotation, **kwargs)
+  # def cbar(self, cbar=None, clabel=None,
+  #              clabel_pad=-40, clabel_y=1.1, clabel_rotation=0,
+  #              cbar_shrink=0.92, **kwargs):
+  #   if cbar is not None:
+  #     self.colorbar(shrink=cbar_shrink, **kwargs)
+  #     if clabel is not None:
+  #       self.clabel(labelpad=clabel_pad, y=clabel_y, rotation=clabel_rotation, **kwargs)
 
-  def colorbar(self, shrink=None, **kwargs):
-    self.cbar = self.ax.colorbar(**nargs(locals()))
+  # def colorbar(self, shrink=None, **kwargs):
+  #   self.cbar = self.fig.colorbar(ax=self.ax, **nargs(locals()))
 
-  def clabel(self, labelpad=None, y=None, rotation=None):
-    self.cbar.set_label(**nargs(locals()))
+  # def clabel(self, labelpad=None, y=None, rotation=None):
+  #   self.cbar.set_label(**nargs(locals()))
 
   def subplot(self, nrows=1, ncols=1,
               sharex=False, sharey=False,
@@ -163,14 +165,15 @@ class Figure(Draw):
     self.ax.margins(**nargs(locals()))
 
 class Display(Draw):
-  def end(self,
-          save=None, show=False, iplot=False,
-          clear=False, rc=None, tight_layout=True,
-          **kwargs):
+  def begin(self, rc=None, **kwargs):
     if rc is not None:
       for k, v in rc.items():
         plt.rc(k, **v)
 
+  def end(self,
+          save=None, show=False, iplot=False,
+          clear=False, rc=None, tight_layout=True,
+          **kwargs):
     if tight_layout:
       self.tight_layout(**kwargs)
 
@@ -236,10 +239,9 @@ class Display(Draw):
 @register('plot')
 class Plot(Figure, Display):
   def begin(self, **kwargs):
+    Display.begin(self, **kwargs)
     Figure.begin(self, **kwargs)
-  
-  def render(self, **kwargs):
-    pass
 
   def end(self, **kwargs):
+    Figure.end(self, **kwargs)
     Display.end(self, **kwargs)

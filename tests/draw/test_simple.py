@@ -34,7 +34,7 @@ class TestSimplePlots(TestCase):
     draw.draw(clear=True, kind='barplot', y=X)
 
   def test_contour(self):
-    pass
+    draw.draw(clear=True, kind='contour', z=[[1, 2, 3], [4, 5, 6], [7, 8, 9]])
   
   def test_hist(self):
     draw.draw(clear=True, kind='hist', x=X, bins=2)

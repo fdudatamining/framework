@@ -70,9 +70,8 @@ class TestFigure(TestCase):
     draw.draw(clear=True, legend='bottom')
     draw.draw(clear=True, legend='right')
   
-  def test_cbar(self):
-    draw.draw(clear=True, cbar=True)
-    draw.draw(clear=True, cbar=True, clabel=True)
+  # def test_cbar(self):
+  #   draw.draw(clear=True, kind='contour', z=[[1,2,3],[4,5,6],[7,8,9]], cbar=True, clabel=True)
 
 class TestDisplay(TestCase):
   def test_save(self):
