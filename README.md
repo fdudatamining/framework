@@ -8,31 +8,25 @@
 ### Release Installation
 
 ```
-pip install https://github.com/fdudatamining/framework/archive/latest
+pip install https://github.com/fdudatamining/framework/archive/master.zip
 ```
 
 ### Bleeding Edge Installation
 
 ```
-git clone https://github.com/fdudatamining/framework
-cd framework
-python setup.py install
+pip install https://github.com/fdudatamining/framework/archive/develop.zip
 ```
 
 ### Development Installation
 
 It's recommended that you install the relevant packages for the framework in a virtual environment
 ```
+git clone https://github.com/fdudatamining/framework
+cd framework
 virtualenv env
 source env/bin/activate
 python setup.py develop
 ```
-
-### Matplotlib basemap
-
-If you receive an error about geopy--install matplotlib's basemap from the source repository: <https://github.com/matplotlib/basemap/>.
-
-`pip install https://github.com/matplotlib/basemap/archive/v1.1.0.zip`
 
 ## Framework Outline
 
@@ -48,26 +42,25 @@ Example:
 from framework.data import *
 
 data = PandasData(pd.read_csv('data.csv'))
-target = PandasData(pd.read_csv('target.csv'))
-clf = SVC(); clf.fit(data.data, target.data)
-print(*zip(data.invert(clf.predict(data.data)), target.invert(target.data)), sep='\n')
+clf = SVC(); clf.fit(data.data().drop('Target'), target.data()['Target'])
+data.invert(pd.concat([data.data(), clf.predict(data.data())]))
 ```
 
 We've also added a simple wrapper for our clean in-house database.
 
 ```python
 from framework.data import *
-data = PandasData(pd.read_sql('select * from hospitals', sql))
+df = pd.read_sql('select * from hospitals', sql('datamining')))
 ```
 
 ### framework.draw
 
-Contains specific plotting functionality designed for different models, the plotting wraps matplotlib plotting making for a much quicker and simpler way of plotting and extending plotting functionality.
+Contains specific plotting functionality designed for different models, the plotting wraps matplotlib plotting making for a much quicker and simpler way of plotting and extending plotting functionality. For a list of all the drawing types see `framework.draw.draw_kinds`
 
 Example:
 
 ```python
-from framework.draw import draw
+from framework.draw import *
 
 draw(title='Exponential', xlabel='t', ylabel='$e^t$',
      kind='plot', y=np.exp(range(10)))
@@ -82,12 +75,3 @@ draw(title='$nt$', xlabel='t', ylabel='y', legend='right', show=True, save='%d.p
 ### framework.process
 
 Contain high level querying of data leveraging some of the framework's models including: outlier/anomaly detection of points and trends, correlation (or lack-their-of) search via combinatorial groupby, common analytic pipeline wrappers, and sampling facilities.
-
-Example:
-
-```python
-from framework.process import *
-
-for group, pt, stats in outlier_detector(pd.read_csv('data.csv'), limit_dimensions=2, threshold=4.0):
-  print(group, pt, stats)
-```
