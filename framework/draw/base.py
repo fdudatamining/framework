@@ -92,7 +92,7 @@ class Figure(Draw):
       self.ax.set_xlim(xlim)
     if ylim is not None:
       self.ax.set_ylim(ylim)
-
+  
     if xmargin is not None or ymargin is not None:
       self.margins(x=xmargin, y=ymargin, **kwargs)
 
@@ -163,7 +163,17 @@ class Figure(Draw):
     self.ax.margins(**nargs(locals()))
 
 class Display(Draw):
-  def end(self, save=None, show=False, iplot=False, clear=False, **kwargs):
+  def end(self,
+          save=None, show=False, iplot=False,
+          clear=False, rc=None, tight_layout=True,
+          **kwargs):
+    if rc is not None:
+      for k, v in rc.items():
+        plt.rc(k, **v)
+
+    if tight_layout:
+      self.tight_layout(**kwargs)
+
     if save:
       self.save(save=save, **kwargs)
 
@@ -174,6 +184,9 @@ class Display(Draw):
 
     if clear or iplot or save or show:
       self.clear(**kwargs)
+
+  def tight_layout(self, rect=None, pad=None, w_pad=None, h_pad=None, **kwargs):
+    plt.tight_layout(**nargs(locals()))
 
   def save(self, save=None, **kwargs):
     self.savefig(

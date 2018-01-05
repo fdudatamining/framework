@@ -11,7 +11,27 @@ class TestFigure(TestCase):
   def test_ax(self):
     d=draw.draw()
     draw.draw(clear=True, ax=d.ax)
-  
+
+  def test_rc(self):
+    draw.draw(rc={
+      'font': {
+        'size': 12,
+      },
+      'axes': {
+        'titlesize': 12,
+        'labelsize': 12,
+      },
+      'legend': {
+        'fontsize': 12,
+      },
+      'xtick': {
+        'labelsize': 12,
+      },
+      'ytick': {
+        'labelsize': 12,
+      },
+    }, clear=True)
+
   def test_grid(self):
     draw.draw(clear=True, grid='both', axis='both')
     draw.draw(clear=True, grid='major', axis='x')
