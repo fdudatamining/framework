@@ -2,14 +2,20 @@
 
 import os
 from setuptools import setup, find_packages
+from sphinx.setup_command import BuildDoc
+cmdclass = {'build_sphinx': BuildDoc}
 
 def read(fname):
     ''' Read files in this directory '''
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
+name = "fdudatamining"
+version = "1.0"
+release = "1.0.1"
 setup(
-    name="fdudatamining",
-    version="0.0.1",
+    name=name,
+    version=release,
     author="fdudatamining",
     author_email="ravirao@fdu.edu",
     description="A wrapper for python datamining.",
@@ -37,6 +43,7 @@ setup(
     setup_requires=[
         'nose',
         'coverage',
+        'sphinx',
     ],
     packages=find_packages(),
     package_data={
@@ -45,4 +52,11 @@ setup(
     include_package_data=True,
     test_suite='nose.collector',
     tests_require=['nose'],
+    cmdclass=cmdclass,
+    command_options={
+        'build_sphinx': {
+            'project': ('setup.py', name),
+            'version': ('setup.py', version),
+            'release': ('setup.py', release),
+            'source_dir': ('setup.py', 'doc')}},
 )

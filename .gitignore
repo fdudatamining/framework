@@ -1,7 +1,9 @@
 __pycache__/
-*.egg-info/
-.vscode/
-.eggs/
-*.swp
-*.pyc
 .coverage
+.eggs/
+.vscode/
+*.egg-info/
+*.pyc
+*.swp
+build/
+doc/autogen/
