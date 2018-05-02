@@ -32,22 +32,43 @@ def outlier_detector(X, y,
   return data[(error-error.mean())/error.std() > threshold]
 
 
-def iterative_kmeans(X, z=0.01, n_clusters=8, **kwargs):
+def iterative_kmeans(X, z=-1, n_clusters=8, **kwargs):
   '''
-  Process X with KMeans yielding rows that appear in lower than m-z
-   clusters, and recursively processing on higher than m+z clusters.
+  Process X with KMeans yielding rows that appear in clusters whos
+      size is < mean(cluster_size) - z
+   , and recursively processing on the remaining clusters.
+  
+  Parameters
+  ----------
+  X : np.array | pd.DataFrame
+    The numpy array or pandas dataframe you wish to process
+    with iterative k-means.
+  z : float
+    The z-index cutoff for determining outlier vs inlier.
+    (default 1.5)
+  n_clusters: int
+    The number of clusters to use each iteration. Different
+    numbers of clusters will require z-value tweaking.
+  **kwargs
+    Extra arguments passed to `sklearn.cluster.KMeans`.
+
+  Yields
+  ------
+  (SubsetIndex[], OutlierIndex[])
+    Index pandas selectors for both 
   '''
-  while len(X) != 0:
-    km = cluster.KMeans(n_clusters=min(len(X), n_clusters), **kwargs)
+  X = pd.DataFrame(X)
+  while X.shape[0] > n_clusters:
+    km = cluster.KMeans(n_clusters=n_clusters, **kwargs)
     x = km.fit_predict(X)
     c = pd.value_counts(x).sort_values()
-    thresh = c.mean() - z*c.std()
-    ind = c[c < thresh].index
-    if len(ind) != 0:
-        yield(X[x==i] for i in ind)
+    thresh = c.mean() + z*c.std()
+    O = X[np.in1d(x, c[c < thresh].index)]
+    yield(X.index, O.index)
+    if O.shape[0] != 0:
+        X = X[np.in1d(x, c[c >= thresh].index)]
     else:
         break
-    X = X[np.in1d(x, c[c >= thresh].index)]
 
 def aggregate_bins1d(x=None, n=10, aggfunc='count', fillna=np.NaN):
   ''' An easier to use histogram function '''

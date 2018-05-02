@@ -21,10 +21,9 @@ class TestProcess(TestCaseEx):
       [5,5,5,5,5,5,5,5,5,5,],
     ])
     for N in range(1, 10):
-      for n, cluster in  enumerate(process.iterative_kmeans(mat, n_clusters=N)):
-        for outlier in cluster:
-          self.assertNotEqual(outlier.mean(), 5, 'Common row should not be an outlier')
-          print(n, outlier)
+      for n, (inlier, outlier) in  enumerate(process.iterative_kmeans(mat, n_clusters=N)):
+        self.assertNotEqual(mat[outlier].mean(), 5, 'Common row should not be an outlier')
+        print(n, mat[outlier])
 
   def test_aggregate_bins1d(self):
     x = [1,2,2,3,3,3,4,4,4,4,5,5,5,5,5,]
