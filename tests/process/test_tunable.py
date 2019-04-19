@@ -278,9 +278,9 @@ class TestTunable(TestCaseEx):
           for b in range(2)
       ],
     )
-    T1_start = time.clock()
+    T1_start = time.perf_counter()
     T1_len = float(len(list(T1)))
-    T1_end = time.clock()
+    T1_end = time.perf_counter()
     T2 = Tunable(
       *[
           TunableChoice(
@@ -299,9 +299,9 @@ class TestTunable(TestCaseEx):
           for c in range(2)
       ],
     )
-    T2_start = time.clock()
+    T2_start = time.perf_counter()
     T2_len = float(len(list(T2)))
-    T2_end = time.clock()
+    T2_end = time.perf_counter()
     # This complexity was found through trial and error,
     #  I'm actually impressed that it's sqrt
     complexity = lambda n: np.sqrt(n)

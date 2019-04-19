@@ -3,7 +3,7 @@ import os
 import pickle
 from geopy.geocoders.base import Geocoder
 from geopy.geocoders import \
-    ArcGIS, DataBC, GoogleV3, GeocoderDotUS, OpenMapQuest, \
+    ArcGIS, DataBC, GoogleV3, OpenMapQuest, \
     Nominatim, GeocodeFarm, Yandex, Photon
 from itertools import cycle
 
@@ -13,7 +13,7 @@ class CachingLeechGeocoder(Geocoder):
     ''' I designed this to leach off of the available Geocoder providers and cache all results,
     accessing each geocoder in a round-robin fashion we'll hopefully cache all we need and not
     exceed any of the individual websites' api call limits. '''
-    coders = [ArcGIS, DataBC, GoogleV3, GeocoderDotUS, OpenMapQuest,
+    coders = [ArcGIS, DataBC, GoogleV3, OpenMapQuest,
               Nominatim, GeocodeFarm, Yandex, Photon]
     cached = {}
     cache = 'leech_geocoder.pickle'

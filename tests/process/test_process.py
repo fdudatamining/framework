@@ -28,7 +28,7 @@ class TestProcess(TestCaseEx):
   def test_aggregate_bins1d(self):
     x = [1,2,2,3,3,3,4,4,4,4,5,5,5,5,5,]
     res = process.aggregate_bins1d(x, n=5)
-    self.assertNumpyEqual(res.as_matrix(), np.array([1,2,3,4,5]))
+    self.assertNumpyEqual(res.values, np.array([1,2,3,4,5]))
 
   def test_aggregate_bins(self):
     df = pd.DataFrame([
@@ -42,15 +42,15 @@ class TestProcess(TestCaseEx):
       [8,9,8,],
       [9,8,7,],
     ], columns=[
-      '1','2','3',
+      'a','b','c',
     ])
-    res = process.aggregate_bins(df, x='1', y='2', z='3', n=9)
-    self.assertEqual(res.sum().sum(), df['3'].sum())
-    res = process.aggregate_bins(df, x='1', y='2', z='3', n=5, aggfunc='sum')
-    self.assertEqual(res.sum().sum(), df['3'].sum())
-    res = process.aggregate_bins(df, x='1', y='2', z='3', n=1, aggfunc='mean')
-    self.assertEqual(res.sum().sum(), df['3'].mean())
-    res = process.aggregate_bins(df, x='1', y='2', n=(3, 4))
+    res = process.aggregate_bins(df, x='a', y='b', z='c', n=9)
+    self.assertEqual(res.sum().sum(), df['c'].sum())
+    res = process.aggregate_bins(df, x='a', y='b', z='c', n=5, aggfunc='sum')
+    self.assertEqual(res.sum().sum(), df['c'].sum())
+    res = process.aggregate_bins(df, x='a', y='b', z='c', n=1, aggfunc='mean')
+    self.assertEqual(res.sum().sum(), df['c'].mean())
+    res = process.aggregate_bins(df, x='a', y='b', n=(3, 4))
     # TODO: explain why this is the transpose
     self.assertEqual(res.shape, (4, 3))
     # TODO: test for the location of high vs low values

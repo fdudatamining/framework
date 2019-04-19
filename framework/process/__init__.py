@@ -102,7 +102,7 @@ def aggregate_bins(df=None, x=None, y=None, z=None, n=10, aggfunc=None, fillna=n
   # note that pandas uses strings to represent the cuts so we need to parse those
   g = df.groupby([gx, gy])
   return g[z].agg(aggfunc).reset_index() \
-          .pivot_table(index=y, columns=x, values=z) \
+          .pivot_table(index=[y], columns=[x], values=[z]) \
           .fillna(fillna)
 
 def polyfit(*kargs):
